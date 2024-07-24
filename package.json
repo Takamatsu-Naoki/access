@@ -1,6 +1,7 @@
 {
 	"name": "access",
 	"version": "0.0.1",
+  "description": "ACCESS: Accessible Coding and Computer Education for Students with Sight-impairment",
 	"private": true,
 	"scripts": {
 		"dev": "vite dev",
@@ -12,6 +13,8 @@
 		"test:integration": "playwright test",
 		"test:unit": "vitest"
 	},
+  "author": "Takamatsu Naoki <takamatsu0331@outlook.jp>",
+  "license": "MIT",
 	"devDependencies": {
 		"@playwright/test": "^1.28.1",
 		"@sveltejs/adapter-auto": "^3.0.0",
