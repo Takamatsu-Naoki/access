@@ -1,7 +1,7 @@
 {
 	"name": "access",
 	"version": "0.0.1",
-  "description": "ACCESS: Accessible Coding and Computer Education for Students with Sight-impairment",
+	"description": "ACCESS: Accessible Coding and Computer Education for Students with Sight-impairment",
 	"private": true,
 	"scripts": {
 		"dev": "vite dev",
@@ -13,18 +13,22 @@
 		"test:integration": "playwright test",
 		"test:unit": "vitest"
 	},
-  "author": "Takamatsu Naoki <takamatsu0331@outlook.jp>",
-  "license": "MIT",
+	"author": "Takamatsu Naoki <takamatsu0331@outlook.jp>",
+	"license": "MIT",
 	"devDependencies": {
+		"@fsouza/prettierd": "^0.25.3",
 		"@playwright/test": "^1.28.1",
 		"@sveltejs/adapter-auto": "^3.0.0",
 		"@sveltejs/kit": "^2.0.0",
 		"@sveltejs/vite-plugin-svelte": "^3.0.0",
 		"svelte": "^4.2.7",
 		"svelte-check": "^3.6.0",
+		"svelte-language-server": "^0.16.13",
 		"typescript": "^5.0.0",
+		"typescript-language-server": "^4.3.3",
 		"vite": "^5.0.3",
-		"vitest": "^2.0.0"
+		"vitest": "^2.0.0",
+		"vscode-langservers-extracted": "^4.10.0"
 	},
 	"type": "module"
 }
