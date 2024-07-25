@@ -1,4 +1,6 @@
 import { pipe } from 'fp-ts/function';
+import * as RA from 'fp-ts/ReadonlyArray';
+import * as RNEA from 'fp-ts/lib/ReadonlyNonEmptyArray';
 import * as S from '$lib/code/fp-ts-utils/SVG';
 
 export const getSize = (element: SVGGraphicsElement) => {
@@ -94,3 +96,131 @@ export const drawStringBlock = (label: SVGGElement) => {
   return block;
 };
 
+const convex = (path: string) =>
+  pipe(
+    path,
+    S.R.right(6),
+    S.R.up(3),
+    S.R.cubicCurve(0, -3)(0, -3)(3, -3),
+    S.R.right(12),
+    S.R.cubicCurve(3, 0)(3, 0)(3, 3),
+    S.R.down(3),
+    S.R.right(6)
+  );
+
+const concave = (path: string) =>
+  pipe(
+    path,
+    S.R.left(6),
+    S.R.up(3),
+    S.R.cubicCurve(0, -3)(0, -3)(-3, -3),
+    S.R.left(12),
+    S.R.cubicCurve(-3, 0)(-3, 0)(-3, 3),
+    S.R.down(3),
+    S.R.left(6)
+  );
+
+export const drawActionBlockPath =
+  (width: number) => (heights: RNEA.ReadonlyNonEmptyArray<number>) => {
+    const blockPath = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+    blockPath.classList.add('block-path', 'action-block-path');
+    blockPath.setAttribute(
+      'd',
+      pipe(
+        S.draw,
+        S.A.moveTo(0, 0),
+        convex,
+        S.R.right(width + 30),
+        (upperSideOfPath) =>
+          pipe(
+            heights,
+            RA.reduceWithIndex(upperSideOfPath, (index, path, height) =>
+              index % 2 === 0
+                ? pipe(path, S.R.down(height))
+                : pipe(
+                  path,
+                  S.R.left(width),
+                  concave,
+                  S.R.down(height),
+                  convex,
+                  S.R.right(width - 30)
+                )
+            )
+          ),
+        S.R.left(width + 30),
+        concave,
+        S.closePath
+      )
+    );
+
+    return blockPath;
+  };
+
+export type ChildElements = RNEA.ReadonlyNonEmptyArray<ReadonlyArray<SVGGElement>>;
+
+const doubleMap =
+  <A, B>(f: (a: A) => B) =>
+    (array: RNEA.ReadonlyNonEmptyArray<ReadonlyArray<A>>) =>
+      pipe(
+        array,
+        RNEA.map((a) => pipe(a, RA.map(f)))
+      );
+
+export const drawActionBlock = (childElements: ChildElements) => {
+  const childSizes = pipe(childElements, doubleMap(getSize));
+
+  const width = pipe(
+    childSizes,
+    doubleMap((a) => a.width),
+    RA.map((a) =>
+      pipe(
+        a,
+        RA.reduce(0, (acc, cur) => acc + cur + 4)
+      )
+    ),
+    RA.reduce(0, (acc, cur) => (acc < cur ? cur : acc))
+  );
+
+  const heights = pipe(
+    childSizes,
+    doubleMap((a) => a.height),
+    RNEA.map((a) =>
+      pipe(
+        a,
+        RA.reduce(0, (acc, cur) => (acc < cur ? cur : acc)),
+        (a) => a + 8
+      )
+    )
+  );
+
+  const blockPath = drawActionBlockPath(width)(heights);
+
+  const block = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+  block.classList.add('block', 'action-block');
+  block.append(blockPath);
+
+  let offsetY = 0;
+
+  childElements.forEach((inlineElements, rowNumber) => {
+    let offsetX = 60;
+
+    inlineElements.forEach((element, columnNumber) => {
+      if (rowNumber % 2 === 0) {
+        element.setAttribute(
+          'transform',
+          `translate(${offsetX} ${offsetY + (heights[rowNumber] - childSizes[rowNumber][columnNumber].height) / 2})`
+        );
+        offsetX += childSizes[rowNumber][columnNumber].width + 4;
+      } else {
+        element.setAttribute('transform', `translate(${offsetX} ${offsetY})`);
+      }
+
+      block.append(element);
+    });
+
+    offsetY += heights[rowNumber];
+    console.log(offsetY);
+  });
+
+  return block;
+};
