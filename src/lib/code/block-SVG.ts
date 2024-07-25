@@ -73,9 +73,9 @@ export const drawStringBlockPath = (label: SVGGElement) => {
     pipe(
       S.draw,
       S.A.moveTo(0, 0),
-      S.R.right(labelSize.width + 4),
-      S.R.down(labelSize.height + 4),
-      S.R.left(labelSize.width + 4),
+      S.R.right(labelSize.width + 8),
+      S.R.down(labelSize.height + 8),
+      S.R.left(labelSize.width + 8),
       S.closePath
     )
   );
@@ -84,7 +84,7 @@ export const drawStringBlockPath = (label: SVGGElement) => {
 };
 
 export const drawStringBlock = (label: SVGGElement) => {
-  label.setAttribute('transform', 'translate(2 2)');
+  label.setAttribute('transform', 'translate(4 4)');
 
   const blockPath = drawStringBlockPath(label);
 
@@ -175,7 +175,7 @@ export const drawActionBlock = (childElements: ChildElements) => {
     RA.map((a) =>
       pipe(
         a,
-        RA.reduce(0, (acc, cur) => acc + cur + 4)
+        RA.reduce(0, (acc, cur) => acc + cur + 6)
       )
     ),
     RA.reduce(0, (acc, cur) => (acc < cur ? cur : acc))
@@ -188,7 +188,7 @@ export const drawActionBlock = (childElements: ChildElements) => {
       pipe(
         a,
         RA.reduce(0, (acc, cur) => (acc < cur ? cur : acc)),
-        (a) => a + 8
+        (a) => a + 12
       )
     )
   );
@@ -210,7 +210,7 @@ export const drawActionBlock = (childElements: ChildElements) => {
           'transform',
           `translate(${offsetX} ${offsetY + (heights[rowNumber] - childSizes[rowNumber][columnNumber].height) / 2})`
         );
-        offsetX += childSizes[rowNumber][columnNumber].width + 4;
+        offsetX += childSizes[rowNumber][columnNumber].width + 6;
       } else {
         element.setAttribute('transform', `translate(${offsetX} ${offsetY})`);
       }
