@@ -143,7 +143,7 @@ export const drawActionBlockPath =
                   concave,
                   S.R.down(height),
                   convex,
-                  S.R.right(width - 30)
+                  S.R.right(width)
                 )
             )
           ),
@@ -224,3 +224,5 @@ export const drawActionBlock = (childElements: ChildElements) => {
 
   return block;
 };
+
+//export const drawControlBlock = () => ();
