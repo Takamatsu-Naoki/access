@@ -63,39 +63,6 @@ export const drawLabel = (content: string) => {
   return label;
 };
 
-export const drawStringBlockPath = (label: SVGGElement) => {
-  const labelSize = getSize(label);
-
-  const blockPath = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-  blockPath.classList.add('block-path', 'string-block-path');
-  blockPath.setAttribute(
-    'd',
-    pipe(
-      S.draw,
-      S.A.moveTo(0, 0),
-      S.R.right(labelSize.width + 8),
-      S.R.down(labelSize.height + 8),
-      S.R.left(labelSize.width + 8),
-      S.closePath
-    )
-  );
-
-  return blockPath;
-};
-
-export const drawStringBlock = (label: SVGGElement) => {
-  label.setAttribute('transform', 'translate(4 4)');
-
-  const blockPath = drawStringBlockPath(label);
-
-  const block = document.createElementNS('http://www.w3.org/2000/svg', 'g');
-  block.classList.add('block', 'string-block');
-  block.append(blockPath);
-  block.append(label);
-
-  return block;
-};
-
 const convex = (path: string) =>
   pipe(
     path,
@@ -364,6 +331,39 @@ export const drawNumberBlock = (childElements: ChildElements) => {
 
     block.append(element);
   });
+
+  return block;
+};
+
+export const drawStringBlockPath = (label: SVGGElement) => {
+  const labelSize = getSize(label);
+
+  const blockPath = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+  blockPath.classList.add('block-path', 'string-block-path');
+  blockPath.setAttribute(
+    'd',
+    pipe(
+      S.draw,
+      S.A.moveTo(0, 0),
+      S.R.right(labelSize.width + 8),
+      S.R.down(labelSize.height + 8),
+      S.R.left(labelSize.width + 8),
+      S.closePath
+    )
+  );
+
+  return blockPath;
+};
+
+export const drawStringBlock = (label: SVGGElement) => {
+  label.setAttribute('transform', 'translate(4 4)');
+
+  const blockPath = drawStringBlockPath(label);
+
+  const block = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+  block.classList.add('block', 'string-block');
+  block.append(blockPath);
+  block.append(label);
 
   return block;
 };
