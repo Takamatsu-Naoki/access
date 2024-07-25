@@ -293,3 +293,77 @@ export const drawConditionBlock = (childElements: ChildElements) => {
 
   return block;
 };
+
+export const drawNumberBlockPath = (width: number) => (height: number) => {
+  const radius = height / 2;
+  const controlPoint = radius * 0.553;
+  const delta = radius - controlPoint;
+  const bottomLength = width - radius * 2;
+
+  const blockPath = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+  blockPath.classList.add('block-path', 'number-block-path');
+  blockPath.setAttribute(
+    'd',
+    pipe(
+      S.draw,
+      S.A.moveTo(0, radius),
+      S.R.cubicCurve(0, -controlPoint)(delta, -radius)(radius, -radius),
+      S.R.right(bottomLength),
+      S.R.cubicCurve(controlPoint, 0)(radius, delta)(radius, radius),
+      S.R.cubicCurve(0, controlPoint)(-delta, radius)(-radius, radius),
+      S.R.left(bottomLength),
+      S.R.cubicCurve(-controlPoint, 0)(-radius, -delta)(-radius, -radius),
+      S.closePath
+    )
+  );
+
+  return blockPath;
+};
+
+export const drawNumberBlock = (childElements: ChildElements) => {
+  const margin = (classList: DOMTokenList) =>
+    classList.contains('label')
+      ? 12
+      : classList.contains('number-block')
+        ? 4
+        : classList.contains('string-block')
+          ? 18
+          : 6;
+
+  const leftMargin = pipe(childElements, RNEA.head, (a) => a.classList, margin);
+  const rightMargin = pipe(childElements, RNEA.last, (a) => a.classList, margin);
+
+  const childSizes = pipe(childElements, RNEA.map(getSize));
+
+  const width = pipe(
+    childSizes,
+    RA.reduce(-6, (acc, cur) => acc + cur.width + 6),
+    (a) => a + leftMargin + rightMargin
+  );
+
+  const height = pipe(
+    childSizes,
+    RA.reduce(0, (acc, cur) => (acc < cur.height ? cur.height : acc)),
+    (a) => a + 8
+  );
+
+  const blockPath = drawNumberBlockPath(width)(height);
+
+  const block = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+  block.classList.add('block', 'number-block');
+  block.append(blockPath);
+
+  let offsetX = leftMargin;
+
+  childElements.forEach((element, columnNumber) => {
+    element.setAttribute(
+      'transform',
+      `translate(${offsetX} ${(height - childSizes[columnNumber].height) / 2})`
+    );
+    offsetX += childSizes[columnNumber].width + 6;
+
+    block.append(element);
+  });
+
+  return block;
+};
