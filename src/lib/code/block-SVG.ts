@@ -212,7 +212,7 @@ export const drawActionBlock = (childElements: ChildElements) => {
         );
         offsetX += childSizes[rowNumber][columnNumber].width + 6;
       } else {
-        element.setAttribute('transform', `translate(${offsetX} ${offsetY})`);
+        element.setAttribute('transform', `translate(${30} ${offsetY})`);
       }
 
       block.append(element);
