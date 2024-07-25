@@ -223,6 +223,7 @@ export const drawActionBlock = (childElements: ChildElementTable) => (isTrigger:
 export const drawConditionBlockPath = (width: number) => (height: number) => {
   const dy = height / 2;
   const dx = dy * 1.2;
+  const bottomLength = width - dx * 2;
 
   const blockPath = document.createElementNS('http://www.w3.org/2000/svg', 'path');
   blockPath.classList.add('block-path', 'condition-block-path');
@@ -232,10 +233,10 @@ export const drawConditionBlockPath = (width: number) => (height: number) => {
       S.draw,
       S.A.moveTo(0, dy),
       S.R.lineTo(dx, -dy),
-      S.R.right(width - dx * 2),
+      S.R.right(bottomLength),
       S.R.lineTo(dx, dy),
       S.R.lineTo(-dx, dy),
-      S.R.left(width - dx * 2),
+      S.R.left(bottomLength),
       S.closePath
     )
   );
