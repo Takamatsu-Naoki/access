@@ -67,7 +67,7 @@ export const drawStringBlockPath = (label: SVGGElement) => {
   const labelSize = getSize(label);
 
   const blockPath = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-  blockPath.classList.add('block-path');
+  blockPath.classList.add('block-path', 'string-block-path');
   blockPath.setAttribute(
     'd',
     pipe(
@@ -89,7 +89,7 @@ export const drawStringBlock = (label: SVGGElement) => {
   const blockPath = drawStringBlockPath(label);
 
   const block = document.createElementNS('http://www.w3.org/2000/svg', 'g');
-  block.classList.add('block-path', 'string-block-path');
+  block.classList.add('block', 'string-block');
   block.append(blockPath);
   block.append(label);
 
