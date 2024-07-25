@@ -121,15 +121,15 @@ const concave = (path: string) =>
   );
 
 export const drawActionBlockPath =
-  (width: number) => (heights: RNEA.ReadonlyNonEmptyArray<number>) => {
+  (width: number) => (heights: RNEA.ReadonlyNonEmptyArray<number>) => (isTrigger: boolean) => {
     const blockPath = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-    blockPath.classList.add('block-path', 'action-block-path');
+    blockPath.classList.add('block-path', isTrigger ? 'trigger-action-block-path' : 'action-block-path');
     blockPath.setAttribute(
       'd',
       pipe(
         S.draw,
         S.A.moveTo(0, 0),
-        convex,
+        isTrigger ? S.R.right(30) : convex,
         S.R.right(width + 30),
         (upperSideOfPath) =>
           pipe(
@@ -137,18 +137,11 @@ export const drawActionBlockPath =
             RA.reduceWithIndex(upperSideOfPath, (index, path, height) =>
               index % 2 === 0
                 ? pipe(path, S.R.down(height))
-                : pipe(
-                  path,
-                  S.R.left(width),
-                  concave,
-                  S.R.down(height),
-                  convex,
-                  S.R.right(width)
-                )
+                : pipe(path, S.R.left(width), concave, S.R.down(height), convex, S.R.right(width))
             )
           ),
         S.R.left(width + 30),
-        concave,
+        isTrigger ? S.R.left(30) : concave,
         S.closePath
       )
     );
@@ -166,7 +159,7 @@ const doubleMap =
         RNEA.map((a) => pipe(a, RA.map(f)))
       );
 
-export const drawActionBlock = (childElements: ChildElements) => {
+export const drawActionBlock = (childElements: ChildElements) => (isTrigger: boolean) => {
   const childSizes = pipe(childElements, doubleMap(getSize));
 
   const width = pipe(
@@ -193,10 +186,10 @@ export const drawActionBlock = (childElements: ChildElements) => {
     )
   );
 
-  const blockPath = drawActionBlockPath(width)(heights);
+  const blockPath = drawActionBlockPath(width)(heights)(isTrigger);
 
   const block = document.createElementNS('http://www.w3.org/2000/svg', 'g');
-  block.classList.add('block', 'action-block');
+  block.classList.add('block', isTrigger ? 'trigger-action-block' : 'action-block');
   block.append(blockPath);
 
   let offsetY = 0;
