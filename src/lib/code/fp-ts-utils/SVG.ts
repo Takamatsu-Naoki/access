@@ -14,10 +14,15 @@ export namespace A {
 	export const moveTo = (x: number, y: number) => (path: string) =>
 		pipe(path, concat('M'), concat(`${x},${y}`));
 
-	export const horizontal = (x: number) => (path: string) =>
+	export const right = (x: number) => (path: string) =>
 		pipe(path, concat('H'), concat(`${x}`));
 
-	export const vertical = (y: number) => (path: string) => pipe(path, concat('V'), concat(`${y}`));
+	export const left = (x: number) => (path: string) =>
+		pipe(path, concat('H'), concat(`${-x}`));
+
+	export const down = (y: number) => (path: string) => pipe(path, concat('V'), concat(`${y}`));
+
+	export const up = (y: number) => (path: string) => pipe(path, concat('V'), concat(`${-y}`));
 
 	export const lineTo = (x: number, y: number) => (path: string) =>
 		pipe(path, concat('L'), concat(`${x},${y}`));
@@ -63,11 +68,17 @@ export namespace R {
 	export const moveTo = (dx: number, dy: number) => (path: string) =>
 		pipe(path, concat('m'), concat(`${dx},${dy}`));
 
-	export const horizontal = (dx: number) => (path: string) =>
+	export const right = (dx: number) => (path: string) =>
 		pipe(path, concat('h'), concat(`${dx}`));
 
-	export const vertical = (dy: number) => (path: string) =>
+	export const left = (dx: number) => (path: string) =>
+		pipe(path, concat('h'), concat(`${-dx}`));
+
+	export const down = (dy: number) => (path: string) =>
 		pipe(path, concat('v'), concat(`${dy}`));
+
+	export const up = (dy: number) => (path: string) =>
+		pipe(path, concat('v'), concat(`${-dy}`));
 
 	export const lineTo = (dx: number, dy: number) => (path: string) =>
 		pipe(path, concat('l'), concat(`${dx},${dy}`));
