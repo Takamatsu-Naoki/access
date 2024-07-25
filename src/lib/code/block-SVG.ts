@@ -123,7 +123,10 @@ const concave = (path: string) =>
 export const drawActionBlockPath =
   (width: number) => (heights: RNEA.ReadonlyNonEmptyArray<number>) => (isTrigger: boolean) => {
     const blockPath = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-    blockPath.classList.add('block-path', isTrigger ? 'trigger-action-block-path' : 'action-block-path');
+    blockPath.classList.add(
+      'block-path',
+      isTrigger ? 'trigger-action-block-path' : 'action-block-path'
+    );
     blockPath.setAttribute(
       'd',
       pipe(
@@ -149,7 +152,7 @@ export const drawActionBlockPath =
     return blockPath;
   };
 
-export type ChildElements = RNEA.ReadonlyNonEmptyArray<ReadonlyArray<SVGGElement>>;
+export type ChildElementTable = RNEA.ReadonlyNonEmptyArray<ReadonlyArray<SVGGElement>>;
 
 const doubleMap =
   <A, B>(f: (a: A) => B) =>
@@ -159,7 +162,7 @@ const doubleMap =
         RNEA.map((a) => pipe(a, RA.map(f)))
       );
 
-export const drawActionBlock = (childElements: ChildElements) => (isTrigger: boolean) => {
+export const drawActionBlock = (childElements: ChildElementTable) => (isTrigger: boolean) => {
   const childSizes = pipe(childElements, doubleMap(getSize));
 
   const width = pipe(
@@ -212,10 +215,80 @@ export const drawActionBlock = (childElements: ChildElements) => (isTrigger: boo
     });
 
     offsetY += heights[rowNumber];
-    console.log(offsetY);
   });
 
   return block;
 };
 
-//export const drawControlBlock = () => ();
+export const drawConditionBlockPath = (width: number) => (height: number) => {
+  const dy = height / 2;
+  const dx = dy * 1.2;
+
+  const blockPath = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+  blockPath.classList.add('block-path', 'condition-block-path');
+  blockPath.setAttribute(
+    'd',
+    pipe(
+      S.draw,
+      S.A.moveTo(0, dy),
+      S.R.lineTo(dx, -dy),
+      S.R.right(width - dx * 2),
+      S.R.lineTo(dx, dy),
+      S.R.lineTo(-dx, dy),
+      S.R.left(width - dx * 2),
+      S.closePath
+    )
+  );
+
+  return blockPath;
+};
+
+type ChildElements = RNEA.ReadonlyNonEmptyArray<SVGGElement>;
+
+export const drawConditionBlock = (childElements: ChildElements) => {
+  const margin = (classList: DOMTokenList) =>
+    classList.contains('label')
+      ? 23
+      : classList.contains('condition-block')
+        ? 7
+        : classList.contains('number-block')
+          ? 20
+          : 11;
+
+  const leftMargin = pipe(childElements, RNEA.head, (a) => a.classList, margin);
+  const rightMargin = pipe(childElements, RNEA.last, (a) => a.classList, margin);
+
+  const childSizes = pipe(childElements, RNEA.map(getSize));
+
+  const width = pipe(
+    childSizes,
+    RA.reduce(-6, (acc, cur) => acc + cur.width + 6),
+    (a) => a + leftMargin + rightMargin
+  );
+
+  const height = pipe(
+    childSizes,
+    RA.reduce(0, (acc, cur) => (acc < cur.height ? cur.height : acc)),
+    (a) => a + 8
+  );
+
+  const blockPath = drawConditionBlockPath(width)(height);
+
+  const block = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+  block.classList.add('block', 'condition-block');
+  block.append(blockPath);
+
+  let offsetX = leftMargin;
+
+  childElements.forEach((element, columnNumber) => {
+    element.setAttribute(
+      'transform',
+      `translate(${offsetX} ${(height - childSizes[columnNumber].height) / 2})`
+    );
+    offsetX += childSizes[columnNumber].width + 6;
+
+    block.append(element);
+  });
+
+  return block;
+};
