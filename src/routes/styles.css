@@ -1,0 +1,11 @@
+:root {
+  font-family: "Roboto", sans-serif;
+  font-weight: 450;
+  font-style: normal;
+}
+
+body {
+	margin: 0;
+    background-color: #006070;
+	background-attachment: fixed;
+}
