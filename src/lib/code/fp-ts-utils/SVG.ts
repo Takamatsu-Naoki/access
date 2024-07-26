@@ -1,5 +1,5 @@
 import { pipe } from 'fp-ts/function';
-import * as S from '$lib/code/fp-ts-utils/String';
+import * as S from '$lib/code/fp-ts-utils/string';
 
 const concat = (second: string) => (first: string) =>
 	pipe(first, S.append(' '), S.append(second));
