@@ -29,7 +29,6 @@ export const SymbolEntity = {
   And: 'and',
   Or: 'or',
   Not: 'not',
-  Variable: 'variable',
   Plus: 'plus',
   Minus: 'minus',
   Times: 'times',
