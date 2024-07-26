@@ -56,10 +56,10 @@ export const syntaxDefByLocale: ReadonlyMap<Locale, SyntaxDef> = new Map([
         ['Set volume of', CodeRelation.Sound, 'to', CodeRelation.Degree, '%']
       ],
       [SymbolEntity.Wait, ['Wait', CodeRelation.Time, 'secs']],
-      [SymbolEntity.DeclareVariable, ['Declare a variable named', CodeRelation.Name]],
-      [SymbolEntity.SetVariable, ['Set', CodeRelation.variable, 'to', CodeRelation.Number]],
-      [SymbolEntity.ChangeVariable, ['Change', CodeRelation.variable, 'by', CodeRelation.Number]],
-      [SymbolEntity.SendEvent, ['Send an event named', CodeRelation.Name]],
+      [SymbolEntity.DeclareVariable, ['Declare a variable named', CodeRelation.VariableName]],
+      [SymbolEntity.SetVariable, ['Set', CodeRelation.Variable, 'to', CodeRelation.Number]],
+      [SymbolEntity.ChangeVariable, ['Change', CodeRelation.Variable, 'by', CodeRelation.Number]],
+      [SymbolEntity.SendEvent, ['Send an event named', CodeRelation.EventName]],
       [
         SymbolEntity.IfThen,
         ['If', CodeRelation.Condition, 'then', CodeRelation.Actions, '↩//End of If']
@@ -91,7 +91,6 @@ export const syntaxDefByLocale: ReadonlyMap<Locale, SyntaxDef> = new Map([
       [SymbolEntity.And, [CodeRelation.LeftCondition, 'and', CodeRelation.RightCondition]],
       [SymbolEntity.Or, [CodeRelation.LeftCondition, 'or', CodeRelation.RightCondition]],
       [SymbolEntity.Not, ['not', CodeRelation.Condition]],
-      [SymbolEntity.Variable, [CodeRelation.variable]],
       [SymbolEntity.Plus, [CodeRelation.LeftNumber, '+', CodeRelation.RightNumber]],
       [SymbolEntity.Minus, [CodeRelation.LeftNumber, '-', CodeRelation.RightNumber]],
       [SymbolEntity.Times, [CodeRelation.LeftNumber, '×', CodeRelation.RightNumber]],
@@ -144,10 +143,10 @@ export const syntaxDefByLocale: ReadonlyMap<Locale, SyntaxDef> = new Map([
       [SymbolEntity.SetPitch, [CodeRelation.Sound, 'の高さを', CodeRelation.Degree, '% にする']],
       [SymbolEntity.SetVolume, [CodeRelation.Sound, 'の大きさを', CodeRelation.Degree, '% にする']],
       [SymbolEntity.Wait, [CodeRelation.Time, '秒待つ']],
-      [SymbolEntity.DeclareVariable, [CodeRelation.Name, 'という名前の変数を作る']],
-      [SymbolEntity.SetVariable, [CodeRelation.variable, 'を', CodeRelation.Number, 'にする']],
-      [SymbolEntity.ChangeVariable, [CodeRelation.variable, 'に', CodeRelation.Number, 'を足す']],
-      [SymbolEntity.SendEvent, [CodeRelation.Name, 'という名前のイベントを送る']],
+      [SymbolEntity.DeclareVariable, [CodeRelation.VariableName, 'という名前の変数を作る']],
+      [SymbolEntity.SetVariable, [CodeRelation.Variable, 'を', CodeRelation.Number, 'にする']],
+      [SymbolEntity.ChangeVariable, [CodeRelation.Variable, 'に', CodeRelation.Number, 'を足す']],
+      [SymbolEntity.SendEvent, [CodeRelation.EventName, 'という名前のイベントを送る']],
       [
         SymbolEntity.IfThen,
         ['もしも', CodeRelation.Condition, 'なら、', CodeRelation.Actions, '↩//もしも文、ここまで']
@@ -190,7 +189,6 @@ export const syntaxDefByLocale: ReadonlyMap<Locale, SyntaxDef> = new Map([
       [SymbolEntity.And, [CodeRelation.LeftCondition, 'かつ', CodeRelation.RightCondition]],
       [SymbolEntity.Or, [CodeRelation.LeftCondition, 'または', CodeRelation.RightCondition]],
       [SymbolEntity.Not, [CodeRelation.Condition, 'でない']],
-      [SymbolEntity.Variable, [CodeRelation.variable]],
       [SymbolEntity.Plus, [CodeRelation.LeftNumber, '+', CodeRelation.RightNumber]],
       [SymbolEntity.Minus, [CodeRelation.LeftNumber, '-', CodeRelation.RightNumber]],
       [SymbolEntity.Times, [CodeRelation.LeftNumber, '×', CodeRelation.RightNumber]],
