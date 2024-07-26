@@ -3,8 +3,8 @@ export const CodeRelation = {
   ClosingBracket: 'closingBracket',
   Key: 'key',
   Event: 'event',
+  Variable: 'variable',
   Sound: 'sound',
-  variable: 'variable',
   Number: 'number',
   Coordinate: 'coordinate',
   Seconds: 'seconds',
@@ -19,7 +19,8 @@ export const CodeRelation = {
   Actions: 'actions',
   ElseActions: 'elseActions',
   Content: 'content',
-  Name: 'name',
+  EventName: 'eventName',
+  VariableName: 'variableName',
 } as const;
 
 export type CodeRelation = (typeof CodeRelation)[keyof typeof CodeRelation];
