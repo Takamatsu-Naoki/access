@@ -1,4 +1,4 @@
-export const CodeRelation = {
+export const SymbolRelation = {
   NextAction: 'nextAction',
   ClosingBracket: 'closingBracket',
   Key: 'key',
@@ -23,4 +23,4 @@ export const CodeRelation = {
   VariableName: 'variableName',
 } as const;
 
-export type CodeRelation = (typeof CodeRelation)[keyof typeof CodeRelation];
+export type SymbolRelation = (typeof SymbolRelation)[keyof typeof SymbolRelation];

@@ -1,8 +1,8 @@
 import { Locale } from '$lib/resource/config';
 import { SymbolEntity } from '$lib/resource/graph/symbol-entity';
-import { CodeRelation } from '$lib/resource/graph/code-relation';
+import { SymbolRelation } from '$lib/resource/graph/symbol-relation';
 
-export type SyntaxDef = ReadonlyMap<SymbolEntity, ReadonlyArray<string | CodeRelation>>;
+export type SyntaxDef = ReadonlyMap<SymbolEntity, ReadonlyArray<string | SymbolRelation>>;
 
 export const syntaxDefByLocale: ReadonlyMap<Locale, SyntaxDef> = new Map([
   [
@@ -10,15 +10,15 @@ export const syntaxDefByLocale: ReadonlyMap<Locale, SyntaxDef> = new Map([
     new Map([
       [
         SymbolEntity.ProgramStart,
-        ['When the program starts', CodeRelation.Actions, '↩//End of the program']
+        ['When the program starts', SymbolRelation.Actions, '↩//End of the program']
       ],
       [
         SymbolEntity.KeyPressed,
         [
           'When the',
-          CodeRelation.Key,
+          SymbolRelation.Key,
           'is pressed',
-          CodeRelation.Actions,
+          SymbolRelation.Actions,
           '↩//End of the key event'
         ]
       ],
@@ -26,82 +26,82 @@ export const syntaxDefByLocale: ReadonlyMap<Locale, SyntaxDef> = new Map([
         SymbolEntity.EventReceived,
         [
           'When the',
-          CodeRelation.Event,
+          SymbolRelation.Event,
           'is received',
-          CodeRelation.Actions,
+          SymbolRelation.Actions,
           '↩//End of the event'
         ]
       ],
-      [SymbolEntity.Say, ['Say', CodeRelation.Content]],
-      [SymbolEntity.SayUntil, ['Say', CodeRelation.Content, 'until done']],
-      [SymbolEntity.Play, ['Play', CodeRelation.Sound]],
-      [SymbolEntity.PlayUntil, ['Play', CodeRelation.Sound, 'until done']],
+      [SymbolEntity.Say, ['Say', SymbolRelation.Content]],
+      [SymbolEntity.SayUntil, ['Say', SymbolRelation.Content, 'until done']],
+      [SymbolEntity.Play, ['Play', SymbolRelation.Sound]],
+      [SymbolEntity.PlayUntil, ['Play', SymbolRelation.Sound, 'until done']],
       [SymbolEntity.StopSound, ['Stop all sounds']],
-      [SymbolEntity.MoveSound, ['Move', CodeRelation.Sound, 'to x:', CodeRelation.Coordinate]],
+      [SymbolEntity.MoveSound, ['Move', SymbolRelation.Sound, 'to x:', SymbolRelation.Coordinate]],
       [
         SymbolEntity.GlideSound,
         [
           'Glide',
-          CodeRelation.Sound,
+          SymbolRelation.Sound,
           'to x:',
-          CodeRelation.Coordinate,
+          SymbolRelation.Coordinate,
           'in',
-          CodeRelation.Time,
+          SymbolRelation.Time,
           'secs'
         ]
       ],
-      [SymbolEntity.SetPitch, ['Set pitch of', CodeRelation.Sound, 'to', CodeRelation.Degree, '%']],
+      [SymbolEntity.SetPitch, ['Set pitch of', SymbolRelation.Sound, 'to', SymbolRelation.Degree, '%']],
       [
         SymbolEntity.SetVolume,
-        ['Set volume of', CodeRelation.Sound, 'to', CodeRelation.Degree, '%']
+        ['Set volume of', SymbolRelation.Sound, 'to', SymbolRelation.Degree, '%']
       ],
-      [SymbolEntity.Wait, ['Wait', CodeRelation.Time, 'secs']],
-      [SymbolEntity.DeclareVariable, ['Declare a variable named', CodeRelation.VariableName]],
-      [SymbolEntity.SetVariable, ['Set', CodeRelation.Variable, 'to', CodeRelation.Number]],
-      [SymbolEntity.ChangeVariable, ['Change', CodeRelation.Variable, 'by', CodeRelation.Number]],
-      [SymbolEntity.SendEvent, ['Send an event named', CodeRelation.EventName]],
+      [SymbolEntity.Wait, ['Wait', SymbolRelation.Time, 'secs']],
+      [SymbolEntity.DeclareVariable, ['Declare a variable named', SymbolRelation.VariableName]],
+      [SymbolEntity.SetVariable, ['Set', SymbolRelation.Variable, 'to', SymbolRelation.Number]],
+      [SymbolEntity.ChangeVariable, ['Change', SymbolRelation.Variable, 'by', SymbolRelation.Number]],
+      [SymbolEntity.SendEvent, ['Send an event named', SymbolRelation.EventName]],
       [
         SymbolEntity.IfThen,
-        ['If', CodeRelation.Condition, 'then', CodeRelation.Actions, '↩//End of If']
+        ['If', SymbolRelation.Condition, 'then', SymbolRelation.Actions, '↩//End of If']
       ],
       [
         SymbolEntity.IfElse,
         [
           'If',
-          CodeRelation.Condition,
+          SymbolRelation.Condition,
           'then',
-          CodeRelation.Actions,
+          SymbolRelation.Actions,
           'else',
-          CodeRelation.ElseActions,
+          SymbolRelation.ElseActions,
           '↩//End of If'
         ]
       ],
-      [SymbolEntity.Repeat, ['Repeat', CodeRelation.Actions, '↻//End of Repeat']],
+      [SymbolEntity.Repeat, ['Repeat', SymbolRelation.Actions, '↻//End of Repeat']],
       [
         SymbolEntity.RepeatFor,
-        ['Repeat', CodeRelation.Count, 'times', CodeRelation.Actions, '↻//End of Repeat']
+        ['Repeat', SymbolRelation.Count, 'times', SymbolRelation.Actions, '↻//End of Repeat']
       ],
       [
         SymbolEntity.RepeatUntil,
-        ['Repeat until', CodeRelation.Condition, CodeRelation.Actions, '↻//End of Repeat']
+        ['Repeat until', SymbolRelation.Condition, SymbolRelation.Actions, '↻//End of Repeat']
       ],
-      [SymbolEntity.IsGreater, [CodeRelation.LeftNumber, '>', CodeRelation.RightNumber]],
-      [SymbolEntity.IsLess, [CodeRelation.LeftNumber, '<', CodeRelation.RightNumber]],
-      [SymbolEntity.Equals, [CodeRelation.LeftNumber, '=', CodeRelation.RightNumber]],
-      [SymbolEntity.And, [CodeRelation.LeftCondition, 'and', CodeRelation.RightCondition]],
-      [SymbolEntity.Or, [CodeRelation.LeftCondition, 'or', CodeRelation.RightCondition]],
-      [SymbolEntity.Not, ['not', CodeRelation.Condition]],
-      [SymbolEntity.Plus, [CodeRelation.LeftNumber, '+', CodeRelation.RightNumber]],
-      [SymbolEntity.Minus, [CodeRelation.LeftNumber, '-', CodeRelation.RightNumber]],
-      [SymbolEntity.Times, [CodeRelation.LeftNumber, '×', CodeRelation.RightNumber]],
-      [SymbolEntity.DividedBy, [CodeRelation.LeftNumber, '÷', CodeRelation.RightNumber]],
+      [SymbolEntity.IsGreater, [SymbolRelation.LeftNumber, '>', SymbolRelation.RightNumber]],
+      [SymbolEntity.IsLess, [SymbolRelation.LeftNumber, '<', SymbolRelation.RightNumber]],
+      [SymbolEntity.Equals, [SymbolRelation.LeftNumber, '=', SymbolRelation.RightNumber]],
+      [SymbolEntity.And, [SymbolRelation.LeftCondition, 'and', SymbolRelation.RightCondition]],
+      [SymbolEntity.Or, [SymbolRelation.LeftCondition, 'or', SymbolRelation.RightCondition]],
+      [SymbolEntity.Not, ['not', SymbolRelation.Condition]],
+      [SymbolEntity.Plus, [SymbolRelation.LeftNumber, '+', SymbolRelation.RightNumber]],
+      [SymbolEntity.Minus, [SymbolRelation.LeftNumber, '-', SymbolRelation.RightNumber]],
+      [SymbolEntity.Times, [SymbolRelation.LeftNumber, '×', SymbolRelation.RightNumber]],
+      [SymbolEntity.DividedBy, [SymbolRelation.LeftNumber, '÷', SymbolRelation.RightNumber]],
       [
         SymbolEntity.Remainder,
-        ['remainder of', CodeRelation.LeftNumber, '÷', CodeRelation.RightNumber]
+        ['remainder of', SymbolRelation.LeftNumber, '÷', SymbolRelation.RightNumber]
       ],
       [
         SymbolEntity.RandomNumber,
-        ['random number between', CodeRelation.LeftNumber, 'to', CodeRelation.RightNumber]
+        ['random number between', SymbolRelation.LeftNumber, 'to', SymbolRelation.RightNumber]
       ]
     ])
   ],
@@ -110,96 +110,96 @@ export const syntaxDefByLocale: ReadonlyMap<Locale, SyntaxDef> = new Map([
     new Map([
       [
         SymbolEntity.ProgramStart,
-        ['プログラムが始まったら、', CodeRelation.Actions, '↩//プログラム、ここまで']
+        ['プログラムが始まったら、', SymbolRelation.Actions, '↩//プログラム、ここまで']
       ],
       [
         SymbolEntity.KeyPressed,
-        [CodeRelation.Key, 'が押されたら、', CodeRelation.Actions, '↩//キーイベント、ここまで']
+        [SymbolRelation.Key, 'が押されたら、', SymbolRelation.Actions, '↩//キーイベント、ここまで']
       ],
       [
         SymbolEntity.EventReceived,
-        [CodeRelation.Event, 'を受け取ったら、', CodeRelation.Actions, '↩//イベント、ここまで']
+        [SymbolRelation.Event, 'を受け取ったら、', SymbolRelation.Actions, '↩//イベント、ここまで']
       ],
-      [SymbolEntity.Say, [CodeRelation.Content, 'と言う']],
-      [SymbolEntity.SayUntil, [CodeRelation.Content, 'と最後まで言う']],
-      [SymbolEntity.Play, [CodeRelation.Sound, 'を鳴らす']],
-      [SymbolEntity.PlayUntil, [CodeRelation.Sound, 'を最後まで鳴らす']],
+      [SymbolEntity.Say, [SymbolRelation.Content, 'と言う']],
+      [SymbolEntity.SayUntil, [SymbolRelation.Content, 'と最後まで言う']],
+      [SymbolEntity.Play, [SymbolRelation.Sound, 'を鳴らす']],
+      [SymbolEntity.PlayUntil, [SymbolRelation.Sound, 'を最後まで鳴らす']],
       [SymbolEntity.StopSound, ['すべての音を止める']],
       [
         SymbolEntity.MoveSound,
-        [CodeRelation.Sound, 'を', CodeRelation.Coordinate, 'の位置に動かす']
+        [SymbolRelation.Sound, 'を', SymbolRelation.Coordinate, 'の位置に動かす']
       ],
       [
         SymbolEntity.GlideSound,
         [
-          CodeRelation.Sound,
+          SymbolRelation.Sound,
           'を',
-          CodeRelation.Coordinate,
+          SymbolRelation.Coordinate,
           'の位置に',
-          CodeRelation.Time,
+          SymbolRelation.Time,
           '秒かけて動かす'
         ]
       ],
-      [SymbolEntity.SetPitch, [CodeRelation.Sound, 'の高さを', CodeRelation.Degree, '% にする']],
-      [SymbolEntity.SetVolume, [CodeRelation.Sound, 'の大きさを', CodeRelation.Degree, '% にする']],
-      [SymbolEntity.Wait, [CodeRelation.Time, '秒待つ']],
-      [SymbolEntity.DeclareVariable, [CodeRelation.VariableName, 'という名前の変数を作る']],
-      [SymbolEntity.SetVariable, [CodeRelation.Variable, 'を', CodeRelation.Number, 'にする']],
-      [SymbolEntity.ChangeVariable, [CodeRelation.Variable, 'に', CodeRelation.Number, 'を足す']],
-      [SymbolEntity.SendEvent, [CodeRelation.EventName, 'という名前のイベントを送る']],
+      [SymbolEntity.SetPitch, [SymbolRelation.Sound, 'の高さを', SymbolRelation.Degree, '% にする']],
+      [SymbolEntity.SetVolume, [SymbolRelation.Sound, 'の大きさを', SymbolRelation.Degree, '% にする']],
+      [SymbolEntity.Wait, [SymbolRelation.Time, '秒待つ']],
+      [SymbolEntity.DeclareVariable, [SymbolRelation.VariableName, 'という名前の変数を作る']],
+      [SymbolEntity.SetVariable, [SymbolRelation.Variable, 'を', SymbolRelation.Number, 'にする']],
+      [SymbolEntity.ChangeVariable, [SymbolRelation.Variable, 'に', SymbolRelation.Number, 'を足す']],
+      [SymbolEntity.SendEvent, [SymbolRelation.EventName, 'という名前のイベントを送る']],
       [
         SymbolEntity.IfThen,
-        ['もしも', CodeRelation.Condition, 'なら、', CodeRelation.Actions, '↩//もしも文、ここまで']
+        ['もしも', SymbolRelation.Condition, 'なら、', SymbolRelation.Actions, '↩//もしも文、ここまで']
       ],
       [
         SymbolEntity.IfElse,
         [
           'もしも',
-          CodeRelation.Condition,
+          SymbolRelation.Condition,
           'なら、',
-          CodeRelation.Actions,
+          SymbolRelation.Actions,
           'そうでなければ',
-          CodeRelation.ElseActions,
+          SymbolRelation.ElseActions,
           '↩//もしも文、ここまで'
         ]
       ],
-      [SymbolEntity.Repeat, ['ずっと繰り返す、', CodeRelation.Actions, '↻//繰り返し文、ここまで']],
+      [SymbolEntity.Repeat, ['ずっと繰り返す、', SymbolRelation.Actions, '↻//繰り返し文、ここまで']],
       [
         SymbolEntity.RepeatFor,
-        [CodeRelation.Count, '回繰り返す、', CodeRelation.Actions, '↻//繰り返し文、ここまで']
+        [SymbolRelation.Count, '回繰り返す、', SymbolRelation.Actions, '↻//繰り返し文、ここまで']
       ],
       [
         SymbolEntity.RepeatUntil,
         [
-          CodeRelation.Condition,
+          SymbolRelation.Condition,
           'になるまで繰り返す、',
-          CodeRelation.Actions,
+          SymbolRelation.Actions,
           '↻//繰り返し文、ここまで'
         ]
       ],
       [
         SymbolEntity.IsGreater,
-        [CodeRelation.LeftNumber, 'が', CodeRelation.RightNumber, 'より大きい']
+        [SymbolRelation.LeftNumber, 'が', SymbolRelation.RightNumber, 'より大きい']
       ],
       [
         SymbolEntity.IsLess,
-        [CodeRelation.LeftNumber, 'が', CodeRelation.RightNumber, 'より小さい']
+        [SymbolRelation.LeftNumber, 'が', SymbolRelation.RightNumber, 'より小さい']
       ],
-      [SymbolEntity.Equals, [CodeRelation.LeftNumber, 'が', CodeRelation.RightNumber, 'と同じ']],
-      [SymbolEntity.And, [CodeRelation.LeftCondition, 'かつ', CodeRelation.RightCondition]],
-      [SymbolEntity.Or, [CodeRelation.LeftCondition, 'または', CodeRelation.RightCondition]],
-      [SymbolEntity.Not, [CodeRelation.Condition, 'でない']],
-      [SymbolEntity.Plus, [CodeRelation.LeftNumber, '+', CodeRelation.RightNumber]],
-      [SymbolEntity.Minus, [CodeRelation.LeftNumber, '-', CodeRelation.RightNumber]],
-      [SymbolEntity.Times, [CodeRelation.LeftNumber, '×', CodeRelation.RightNumber]],
-      [SymbolEntity.DividedBy, [CodeRelation.LeftNumber, '÷', CodeRelation.RightNumber]],
+      [SymbolEntity.Equals, [SymbolRelation.LeftNumber, 'が', SymbolRelation.RightNumber, 'と同じ']],
+      [SymbolEntity.And, [SymbolRelation.LeftCondition, 'かつ', SymbolRelation.RightCondition]],
+      [SymbolEntity.Or, [SymbolRelation.LeftCondition, 'または', SymbolRelation.RightCondition]],
+      [SymbolEntity.Not, [SymbolRelation.Condition, 'でない']],
+      [SymbolEntity.Plus, [SymbolRelation.LeftNumber, '+', SymbolRelation.RightNumber]],
+      [SymbolEntity.Minus, [SymbolRelation.LeftNumber, '-', SymbolRelation.RightNumber]],
+      [SymbolEntity.Times, [SymbolRelation.LeftNumber, '×', SymbolRelation.RightNumber]],
+      [SymbolEntity.DividedBy, [SymbolRelation.LeftNumber, '÷', SymbolRelation.RightNumber]],
       [
         SymbolEntity.Remainder,
-        [CodeRelation.LeftNumber, 'を', CodeRelation.RightNumber, 'で割った余り']
+        [SymbolRelation.LeftNumber, 'を', SymbolRelation.RightNumber, 'で割った余り']
       ],
       [
         SymbolEntity.RandomNumber,
-        [CodeRelation.LeftNumber, 'から', CodeRelation.RightNumber, 'までのランダムな数字']
+        [SymbolRelation.LeftNumber, 'から', SymbolRelation.RightNumber, 'までのランダムな数字']
       ]
     ])
   ]
