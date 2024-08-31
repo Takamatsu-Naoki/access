@@ -2,6 +2,7 @@ import { pipe } from 'fp-ts/function';
 import * as RA from 'fp-ts/ReadonlyArray';
 import * as RNEA from 'fp-ts/lib/ReadonlyNonEmptyArray';
 import * as S from '$lib/code/fp-ts-utils/SVG';
+import { SymbolCategory } from '$lib/resource/graph/symbol-category';
 
 export const getSize = (element: SVGGraphicsElement) => {
   const hiddenSVG = document.getElementById('hidden-SVG');
@@ -364,6 +365,25 @@ export const drawStringBlock = (label: SVGGElement) => {
   block.classList.add('block', 'string-block');
   block.append(blockPath);
   block.append(label);
+
+  return block;
+};
+
+export const drawPlaceholderBlock = (category: SymbolCategory) => (placeholder: string) => {
+  const label = drawLabel(placeholder);
+
+  const block =
+    category === SymbolCategory.Action
+      ? drawActionBlock([[label]])(false)
+      : category === SymbolCategory.Condition
+        ? drawConditionBlock([label])
+        : category === SymbolCategory.Number
+          ? drawNumberBlock([label])
+          : category === SymbolCategory.String
+            ? drawStringBlock(label)
+            : document.createElementNS('http://www.w3.org/2000/svg', 'g');
+
+  block.classList.add('placeholder-block');
 
   return block;
 };
