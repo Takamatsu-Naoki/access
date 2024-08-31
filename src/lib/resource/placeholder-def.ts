@@ -61,4 +61,4 @@ const placeholderDefByLocale: PlaceholderDefByLocale = {
 };
 
 export const getPlaceholder = (locale: Locale) => (relation: SymbolRelation) =>
-  placeholderDefByLocale[locale][relation];
+  `(${placeholderDefByLocale[locale][relation]})`;
