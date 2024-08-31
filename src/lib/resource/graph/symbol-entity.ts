@@ -2,8 +2,6 @@ export const SymbolEntity = {
   ProgramStart: 'programStart',
   KeyPressed: 'keyPressed',
   EventReceived: 'eventReceived',
-  Break: 'break',
-  End: 'end',
   Say: 'say',
   SayUntil: 'sayUntil',
   Play: 'play',
