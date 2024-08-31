@@ -108,7 +108,7 @@ export const drawActionBlockPath =
             RA.reduceWithIndex(upperSideOfPath, (index, path, height) =>
               index % 2 === 0
                 ? pipe(path, S.R.down(height))
-                : pipe(path, S.R.left(width), concave, S.R.down(height), convex, S.R.right(width))
+                : pipe(path, S.R.left(width - (isTrigger ? 0 : 30)), concave, S.R.down(height), convex, S.R.right(width - (isTrigger ? 0 : 30)))
             )
           ),
         S.R.left(width + (isTrigger ? 30 : 0)),
@@ -148,12 +148,17 @@ export const drawActionBlock = (childElements: ChildElementTable) => (isTrigger:
   const heights = pipe(
     childSizes,
     doubleMap((a) => a.height),
-    RNEA.map((a) =>
-      pipe(
-        a,
-        RA.reduce(0, (acc, cur) => (acc < cur ? cur : acc)),
-        (a) => a + 12
-      )
+    RNEA.mapWithIndex((i, a) =>
+      i % 2 === 0
+        ? pipe(
+          a,
+          RA.reduce(0, (acc, cur) => (acc < cur ? cur : acc)),
+          (a) => a + 12
+        )
+        : pipe(
+          a,
+          RA.reduce(0, (acc, cur) => acc + cur - 6)
+        )
     )
   );
 
@@ -187,6 +192,8 @@ export const drawActionBlock = (childElements: ChildElementTable) => (isTrigger:
 
   return block;
 };
+
+export const isActionBlock = (element: SVGGElement) => element.classList.contains('action-block');
 
 export const drawConditionBlockPath = (width: number) => (height: number) => {
   const dy = height / 2;
@@ -381,6 +388,8 @@ export const drawPlaceholderBlock = (category: SymbolCategory) => (placeholder: 
           ? drawNumberBlock([label])
           : category === SymbolCategory.String
             ? drawStringBlock(label)
+            : category === SymbolCategory.Literal
+            ? label
             : document.createElementNS('http://www.w3.org/2000/svg', 'g');
 
   block.classList.add('placeholder-block');
