@@ -75,3 +75,10 @@ export const keyBinding: ReadonlyMap<KeyBindingMode, KeyBinding> = new Map([
     }
   ]
 ]);
+
+export const config: Config = {
+  voiceInput: false,
+  locale: Locale.EnUS,
+  keyBindingMode: KeyBindingMode.Hjkl
+};
+
