@@ -142,8 +142,8 @@ const categoryByRelation: SymbolCategoryByRelation = {
   [SymbolRelation.Content]: SymbolCategory.String,
   [SymbolRelation.EventName]: SymbolCategory.String,
   [SymbolRelation.VariableName]: SymbolCategory.String,
-  [SymbolRelation.NumericValue]: SymbolCategory.Number,
-  [SymbolRelation.StringValue]: SymbolCategory.String
+  [SymbolRelation.NumericValue]: SymbolCategory.Literal,
+  [SymbolRelation.StringValue]: SymbolCategory.Literal
 };
 
 export const getCategoryByRelation = (relation: SymbolRelation) => categoryByRelation[relation];
