@@ -101,7 +101,7 @@ export const drawActionBlockPath =
         S.draw,
         S.A.moveTo(0, 0),
         isTrigger ? S.R.right(30) : convex,
-        S.R.right(width + 30),
+        S.R.right(width + (isTrigger ? 30 : 0)),
         (upperSideOfPath) =>
           pipe(
             heights,
@@ -111,7 +111,7 @@ export const drawActionBlockPath =
                 : pipe(path, S.R.left(width), concave, S.R.down(height), convex, S.R.right(width))
             )
           ),
-        S.R.left(width + 30),
+        S.R.left(width + (isTrigger ? 30 : 0)),
         isTrigger ? S.R.left(30) : concave,
         S.closePath
       )
@@ -166,7 +166,7 @@ export const drawActionBlock = (childElements: ChildElementTable) => (isTrigger:
   let offsetY = 0;
 
   childElements.forEach((inlineElements, rowNumber) => {
-    let offsetX = 60;
+    let offsetX = isTrigger ? 60 : 30;
 
     inlineElements.forEach((element, columnNumber) => {
       if (rowNumber % 2 === 0) {
