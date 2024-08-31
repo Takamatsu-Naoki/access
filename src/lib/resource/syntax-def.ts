@@ -10,7 +10,7 @@ export const syntaxDefByLocale: ReadonlyMap<Locale, SyntaxDef> = new Map([
     new Map([
       [
         SymbolEntity.ProgramStart,
-        ['When the program starts', SymbolRelation.Actions, '↩//End of the program']
+        ['When the program starts', SymbolRelation.Action, '↩//End of the program']
       ],
       [
         SymbolEntity.KeyPressed,
@@ -18,7 +18,7 @@ export const syntaxDefByLocale: ReadonlyMap<Locale, SyntaxDef> = new Map([
           'When the',
           SymbolRelation.Key,
           'is pressed',
-          SymbolRelation.Actions,
+          SymbolRelation.Action,
           '↩//End of the key event'
         ]
       ],
@@ -28,7 +28,7 @@ export const syntaxDefByLocale: ReadonlyMap<Locale, SyntaxDef> = new Map([
           'When the',
           SymbolRelation.Event,
           'is received',
-          SymbolRelation.Actions,
+          SymbolRelation.Action,
           '↩//End of the event'
         ]
       ],
@@ -46,23 +46,29 @@ export const syntaxDefByLocale: ReadonlyMap<Locale, SyntaxDef> = new Map([
           'to x:',
           SymbolRelation.Coordinate,
           'in',
-          SymbolRelation.Time,
-          'secs'
+          SymbolRelation.Duration,
+          'seconds'
         ]
       ],
-      [SymbolEntity.SetPitch, ['Set pitch of', SymbolRelation.Sound, 'to', SymbolRelation.Degree, '%']],
+      [
+        SymbolEntity.SetPitch,
+        ['Set pitch of', SymbolRelation.Sound, 'to', SymbolRelation.Percentage, '%']
+      ],
       [
         SymbolEntity.SetVolume,
-        ['Set volume of', SymbolRelation.Sound, 'to', SymbolRelation.Degree, '%']
+        ['Set volume of', SymbolRelation.Sound, 'to', SymbolRelation.Percentage, '%']
       ],
-      [SymbolEntity.Wait, ['Wait', SymbolRelation.Time, 'secs']],
+      [SymbolEntity.Wait, ['Wait', SymbolRelation.Duration, 'secs']],
       [SymbolEntity.DeclareVariable, ['Declare a variable named', SymbolRelation.VariableName]],
       [SymbolEntity.SetVariable, ['Set', SymbolRelation.Variable, 'to', SymbolRelation.Number]],
-      [SymbolEntity.ChangeVariable, ['Change', SymbolRelation.Variable, 'by', SymbolRelation.Number]],
+      [
+        SymbolEntity.ChangeVariable,
+        ['Change', SymbolRelation.Variable, 'by', SymbolRelation.Number]
+      ],
       [SymbolEntity.SendEvent, ['Send an event named', SymbolRelation.EventName]],
       [
         SymbolEntity.IfThen,
-        ['If', SymbolRelation.Condition, 'then', SymbolRelation.Actions, '↩//End of If']
+        ['If', SymbolRelation.Condition, 'then', SymbolRelation.Action, '↩//End of If']
       ],
       [
         SymbolEntity.IfElse,
@@ -70,20 +76,20 @@ export const syntaxDefByLocale: ReadonlyMap<Locale, SyntaxDef> = new Map([
           'If',
           SymbolRelation.Condition,
           'then',
-          SymbolRelation.Actions,
+          SymbolRelation.Action,
           'else',
-          SymbolRelation.ElseActions,
+          SymbolRelation.ElseAction,
           '↩//End of If'
         ]
       ],
-      [SymbolEntity.Repeat, ['Repeat', SymbolRelation.Actions, '↻//End of Repeat']],
+      [SymbolEntity.Repeat, ['Repeat', SymbolRelation.Action, '↻//End of Repeat']],
       [
         SymbolEntity.RepeatFor,
-        ['Repeat', SymbolRelation.Count, 'times', SymbolRelation.Actions, '↻//End of Repeat']
+        ['Repeat', SymbolRelation.Count, 'times', SymbolRelation.Action, '↻//End of Repeat']
       ],
       [
         SymbolEntity.RepeatUntil,
-        ['Repeat until', SymbolRelation.Condition, SymbolRelation.Actions, '↻//End of Repeat']
+        ['Repeat until', SymbolRelation.Condition, SymbolRelation.Action, '↻//End of Repeat']
       ],
       [SymbolEntity.IsGreater, [SymbolRelation.LeftNumber, '>', SymbolRelation.RightNumber]],
       [SymbolEntity.IsLess, [SymbolRelation.LeftNumber, '<', SymbolRelation.RightNumber]],
@@ -91,6 +97,7 @@ export const syntaxDefByLocale: ReadonlyMap<Locale, SyntaxDef> = new Map([
       [SymbolEntity.And, [SymbolRelation.LeftCondition, 'and', SymbolRelation.RightCondition]],
       [SymbolEntity.Or, [SymbolRelation.LeftCondition, 'or', SymbolRelation.RightCondition]],
       [SymbolEntity.Not, ['not', SymbolRelation.Condition]],
+      [SymbolEntity.NumericLiteral, [SymbolRelation.NumericValue]],
       [SymbolEntity.Plus, [SymbolRelation.LeftNumber, '+', SymbolRelation.RightNumber]],
       [SymbolEntity.Minus, [SymbolRelation.LeftNumber, '-', SymbolRelation.RightNumber]],
       [SymbolEntity.Times, [SymbolRelation.LeftNumber, '×', SymbolRelation.RightNumber]],
@@ -102,7 +109,8 @@ export const syntaxDefByLocale: ReadonlyMap<Locale, SyntaxDef> = new Map([
       [
         SymbolEntity.RandomNumber,
         ['random number between', SymbolRelation.LeftNumber, 'to', SymbolRelation.RightNumber]
-      ]
+      ],
+      [SymbolEntity.StringLiteral, [SymbolRelation.StringValue]]
     ])
   ],
   [
@@ -110,15 +118,15 @@ export const syntaxDefByLocale: ReadonlyMap<Locale, SyntaxDef> = new Map([
     new Map([
       [
         SymbolEntity.ProgramStart,
-        ['プログラムが始まったら、', SymbolRelation.Actions, '↩//プログラム、ここまで']
+        ['プログラムが始まったら、', SymbolRelation.Action, '↩//プログラム、ここまで']
       ],
       [
         SymbolEntity.KeyPressed,
-        [SymbolRelation.Key, 'が押されたら、', SymbolRelation.Actions, '↩//キーイベント、ここまで']
+        [SymbolRelation.Key, 'が押されたら、', SymbolRelation.Action, '↩//キーイベント、ここまで']
       ],
       [
         SymbolEntity.EventReceived,
-        [SymbolRelation.Event, 'を受け取ったら、', SymbolRelation.Actions, '↩//イベント、ここまで']
+        [SymbolRelation.Event, 'を受け取ったら、', SymbolRelation.Action, '↩//イベント、ここまで']
       ],
       [SymbolEntity.Say, [SymbolRelation.Content, 'と言う']],
       [SymbolEntity.SayUntil, [SymbolRelation.Content, 'と最後まで言う']],
@@ -136,20 +144,35 @@ export const syntaxDefByLocale: ReadonlyMap<Locale, SyntaxDef> = new Map([
           'を',
           SymbolRelation.Coordinate,
           'の位置に',
-          SymbolRelation.Time,
+          SymbolRelation.Duration,
           '秒かけて動かす'
         ]
       ],
-      [SymbolEntity.SetPitch, [SymbolRelation.Sound, 'の高さを', SymbolRelation.Degree, '% にする']],
-      [SymbolEntity.SetVolume, [SymbolRelation.Sound, 'の大きさを', SymbolRelation.Degree, '% にする']],
-      [SymbolEntity.Wait, [SymbolRelation.Time, '秒待つ']],
+      [
+        SymbolEntity.SetPitch,
+        [SymbolRelation.Sound, 'の高さを', SymbolRelation.Percentage, '% にする']
+      ],
+      [
+        SymbolEntity.SetVolume,
+        [SymbolRelation.Sound, 'の大きさを', SymbolRelation.Percentage, '% にする']
+      ],
+      [SymbolEntity.Wait, [SymbolRelation.Duration, '秒待つ']],
       [SymbolEntity.DeclareVariable, [SymbolRelation.VariableName, 'という名前の変数を作る']],
       [SymbolEntity.SetVariable, [SymbolRelation.Variable, 'を', SymbolRelation.Number, 'にする']],
-      [SymbolEntity.ChangeVariable, [SymbolRelation.Variable, 'に', SymbolRelation.Number, 'を足す']],
+      [
+        SymbolEntity.ChangeVariable,
+        [SymbolRelation.Variable, 'に', SymbolRelation.Number, 'を足す']
+      ],
       [SymbolEntity.SendEvent, [SymbolRelation.EventName, 'という名前のイベントを送る']],
       [
         SymbolEntity.IfThen,
-        ['もしも', SymbolRelation.Condition, 'なら、', SymbolRelation.Actions, '↩//もしも文、ここまで']
+        [
+          'もしも',
+          SymbolRelation.Condition,
+          'なら、',
+          SymbolRelation.Action,
+          '↩//もしも文、ここまで'
+        ]
       ],
       [
         SymbolEntity.IfElse,
@@ -157,23 +180,23 @@ export const syntaxDefByLocale: ReadonlyMap<Locale, SyntaxDef> = new Map([
           'もしも',
           SymbolRelation.Condition,
           'なら、',
-          SymbolRelation.Actions,
+          SymbolRelation.Action,
           'そうでなければ',
-          SymbolRelation.ElseActions,
+          SymbolRelation.ElseAction,
           '↩//もしも文、ここまで'
         ]
       ],
-      [SymbolEntity.Repeat, ['ずっと繰り返す、', SymbolRelation.Actions, '↻//繰り返し文、ここまで']],
+      [SymbolEntity.Repeat, ['ずっと繰り返す、', SymbolRelation.Action, '↻//繰り返し文、ここまで']],
       [
         SymbolEntity.RepeatFor,
-        [SymbolRelation.Count, '回繰り返す、', SymbolRelation.Actions, '↻//繰り返し文、ここまで']
+        [SymbolRelation.Count, '回繰り返す、', SymbolRelation.Action, '↻//繰り返し文、ここまで']
       ],
       [
         SymbolEntity.RepeatUntil,
         [
           SymbolRelation.Condition,
           'になるまで繰り返す、',
-          SymbolRelation.Actions,
+          SymbolRelation.Action,
           '↻//繰り返し文、ここまで'
         ]
       ],
@@ -185,10 +208,14 @@ export const syntaxDefByLocale: ReadonlyMap<Locale, SyntaxDef> = new Map([
         SymbolEntity.IsLess,
         [SymbolRelation.LeftNumber, 'が', SymbolRelation.RightNumber, 'より小さい']
       ],
-      [SymbolEntity.Equals, [SymbolRelation.LeftNumber, 'が', SymbolRelation.RightNumber, 'と同じ']],
+      [
+        SymbolEntity.Equals,
+        [SymbolRelation.LeftNumber, 'が', SymbolRelation.RightNumber, 'と同じ']
+      ],
       [SymbolEntity.And, [SymbolRelation.LeftCondition, 'かつ', SymbolRelation.RightCondition]],
       [SymbolEntity.Or, [SymbolRelation.LeftCondition, 'または', SymbolRelation.RightCondition]],
       [SymbolEntity.Not, [SymbolRelation.Condition, 'でない']],
+      [SymbolEntity.NumericLiteral, [SymbolRelation.NumericValue]],
       [SymbolEntity.Plus, [SymbolRelation.LeftNumber, '+', SymbolRelation.RightNumber]],
       [SymbolEntity.Minus, [SymbolRelation.LeftNumber, '-', SymbolRelation.RightNumber]],
       [SymbolEntity.Times, [SymbolRelation.LeftNumber, '×', SymbolRelation.RightNumber]],
@@ -200,7 +227,8 @@ export const syntaxDefByLocale: ReadonlyMap<Locale, SyntaxDef> = new Map([
       [
         SymbolEntity.RandomNumber,
         [SymbolRelation.LeftNumber, 'から', SymbolRelation.RightNumber, 'までのランダムな数字']
-      ]
+      ],
+      [SymbolEntity.StringLiteral, [SymbolRelation.NumericValue]]
     ])
   ]
 ]);
