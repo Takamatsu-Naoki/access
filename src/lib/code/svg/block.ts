@@ -35,11 +35,11 @@ const drawLabelPath = (textWidth: number) => {
     pipe(
       S.draw,
       S.A.moveTo(0, 3),
-      S.R.down(18),
+      S.R.down(20),
       S.R.cubicCurve(0, 2)(1.2, 3)(3, 3),
       S.R.right(textWidth + 2),
       S.R.cubicCurve(2, 0)(3, -1.2)(3, -3),
-      S.R.up(18),
+      S.R.up(20),
       S.R.cubicCurve(0, -2)(-1.2, -3)(-3, -3),
       S.R.left(textWidth + 2),
       S.R.cubicCurve(-1.2, 0)(-3, 1.2)(-3, 3),
