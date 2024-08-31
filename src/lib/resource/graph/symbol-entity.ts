@@ -29,13 +29,14 @@ export const SymbolEntity = {
   And: 'and',
   Or: 'or',
   Not: 'not',
+  NumericLiteral: 'numericLiteral',
   Plus: 'plus',
   Minus: 'minus',
   Times: 'times',
   DividedBy: 'dividedBy',
   Remainder: 'remainder',
   RandomNumber: 'randomNumber',
+  StringLiteral: 'stringLiteral'
 } as const;
 
 export type SymbolEntity = (typeof SymbolEntity)[keyof typeof SymbolEntity];
-
