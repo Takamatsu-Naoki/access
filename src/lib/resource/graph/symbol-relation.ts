@@ -7,9 +7,8 @@ export const SymbolRelation = {
   Sound: 'sound',
   Number: 'number',
   Coordinate: 'coordinate',
-  Seconds: 'seconds',
-  Degree: 'degree',
-  Time: 'time',
+  Percentage: 'percentage',
+  Duration: 'duration',
   Count: 'count',
   LeftNumber: 'leftNumber',
   RightNumber: 'rightNumber',
@@ -21,6 +20,8 @@ export const SymbolRelation = {
   Content: 'content',
   EventName: 'eventName',
   VariableName: 'variableName',
+  NumericValue: 'numericValue',
+  StringValue: 'stringValue'
 } as const;
 
 export type SymbolRelation = (typeof SymbolRelation)[keyof typeof SymbolRelation];
