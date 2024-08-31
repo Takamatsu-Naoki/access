@@ -1,4 +1,5 @@
 import { SymbolEntity } from '$lib/resource/graph/symbol-entity';
+import { SymbolRelation } from './symbol-relation';
 
 export const SymbolCategory = {
   TriggerAction: 'triggerAction',
@@ -8,7 +9,8 @@ export const SymbolCategory = {
   String: 'string',
   Sound: 'sound',
   Event: 'event',
-  Variable: 'variable'
+  Variable: 'variable',
+  Literal: 'literal'
 } as const;
 
 export type SymbolCategory = (typeof SymbolCategory)[keyof typeof SymbolCategory];
@@ -64,16 +66,17 @@ const symbolEntitiesByCategory: SymbolEntitiesByCategory = {
   [SymbolCategory.String]: [SymbolEntity.StringLiteral],
   [SymbolCategory.Sound]: [],
   [SymbolCategory.Event]: [],
-  [SymbolCategory.Variable]: []
+  [SymbolCategory.Variable]: [],
+  [SymbolCategory.Literal]: []
 };
 
 export const getSymbolEntities = (category: SymbolCategory) => symbolEntitiesByCategory[category];
 
-type SymbolCategoryByEntity = {
+type CategoryByEntity = {
   [key in SymbolEntity]: SymbolCategory;
 };
 
-const symbolCategoryByEntity: SymbolCategoryByEntity = {
+const CategoryByEntity: CategoryByEntity = {
   [SymbolEntity.ProgramStart]: SymbolCategory.TriggerAction,
   [SymbolEntity.KeyPressed]: SymbolCategory.TriggerAction,
   [SymbolEntity.EventReceived]: SymbolCategory.TriggerAction,
@@ -112,4 +115,35 @@ const symbolCategoryByEntity: SymbolCategoryByEntity = {
   [SymbolEntity.StringLiteral]: SymbolCategory.String
 };
 
-export const getSymbolCategory = (entity: SymbolEntity) => symbolCategoryByEntity[entity];
+export const getCategoryByEntity = (entity: SymbolEntity) => CategoryByEntity[entity];
+
+type SymbolCategoryByRelation = {
+  [key in SymbolRelation]: SymbolCategory;
+};
+
+const categoryByRelation: SymbolCategoryByRelation = {
+  [SymbolRelation.NextAction]: SymbolCategory.Action,
+  [SymbolRelation.Key]: SymbolCategory.String,
+  [SymbolRelation.Event]: SymbolCategory.String,
+  [SymbolRelation.Variable]: SymbolCategory.String,
+  [SymbolRelation.Sound]: SymbolCategory.String,
+  [SymbolRelation.Number]: SymbolCategory.Number,
+  [SymbolRelation.Coordinate]: SymbolCategory.Number,
+  [SymbolRelation.Percentage]: SymbolCategory.Number,
+  [SymbolRelation.Duration]: SymbolCategory.Number,
+  [SymbolRelation.Count]: SymbolCategory.Number,
+  [SymbolRelation.LeftNumber]: SymbolCategory.Number,
+  [SymbolRelation.RightNumber]: SymbolCategory.Number,
+  [SymbolRelation.Condition]: SymbolCategory.Condition,
+  [SymbolRelation.LeftCondition]: SymbolCategory.Condition,
+  [SymbolRelation.RightCondition]: SymbolCategory.Condition,
+  [SymbolRelation.Action]: SymbolCategory.Action,
+  [SymbolRelation.ElseAction]: SymbolCategory.Action,
+  [SymbolRelation.Content]: SymbolCategory.String,
+  [SymbolRelation.EventName]: SymbolCategory.String,
+  [SymbolRelation.VariableName]: SymbolCategory.String,
+  [SymbolRelation.NumericValue]: SymbolCategory.Number,
+  [SymbolRelation.StringValue]: SymbolCategory.String
+};
+
+export const getCategoryByRelation = (relation: SymbolRelation) => categoryByRelation[relation];
