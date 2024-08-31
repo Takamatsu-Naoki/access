@@ -20,7 +20,7 @@ const drawText = (content: string) => {
   text.setAttribute('dominant-baseline', 'hanging');
   text.setAttribute('x', '4px');
   text.setAttribute('y', '4px');
-  text.setAttribute('font-size', '16px');
+  text.setAttribute('font-size', '20px');
   text.setAttributeNS('http://www.w3.org/XML/1998/namespace', 'xml:space', 'preserve');
   text.textContent = content;
 

@@ -4,9 +4,9 @@
 <svelte:head>
 	<title>ACCESS: Accessible Coding and Computer Education for Students with Sight-impairment</title>
 	<link rel="preconnect" href="https://fonts.googleapis.com" />
-	<link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous" />
 	<link
-		href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap"
+		href="https://fonts.googleapis.com/css2?family=Roboto:wght@100;400&display=swap"
 		rel="stylesheet"
 	/>
 	<style>
@@ -99,7 +99,7 @@
 
 	#body-wrapper {
 		height: calc(100% - 3rem);
-    min-width: 1600px;
+		min-width: 1600px;
 		padding: 12px;
 		display: flex;
 	}
@@ -123,7 +123,7 @@
 	}
 
 	#workspace-wrapper {
-    flex-grow: 1;
+		flex-grow: 1;
 		max-height: calc(100% - 24px);
 		background-color: #bfe4ff;
 		overflow: scroll;
