@@ -1,6 +1,5 @@
 export const SymbolRelation = {
   NextAction: 'nextAction',
-  ClosingBracket: 'closingBracket',
   Key: 'key',
   Event: 'event',
   Variable: 'variable',
