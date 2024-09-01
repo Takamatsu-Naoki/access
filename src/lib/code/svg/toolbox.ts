@@ -1,5 +1,4 @@
 import { pipe } from 'fp-ts/function';
-import * as O from 'fp-ts/Option';
 import * as RA from 'fp-ts/ReadonlyArray';
 import * as RNEA from 'fp-ts/ReadonlyNonEmptyArray';
 import {
@@ -7,23 +6,23 @@ import {
   getSymbolEntities,
   SymbolCategory
 } from '$lib/resource/graph/symbol-category';
-import { getSyntax, isPrefixedRelation, removePrefix, type Syntax } from '$lib/resource/syntax-def';
+import {
+  getSyntax,
+  isTypedRelation,
+  unpackRelation,
+  type TypedRelation
+} from '$lib/resource/syntax-def';
 import { config } from '$lib/resource/config';
 import { getPlaceholder } from '$lib/resource/placeholder-def';
-import type { SymbolRelation } from '$lib/resource/graph/symbol-relation';
 import {
-  drawActionBlock,
-  drawConditionBlock,
+  drawBlock,
   drawLabel,
-  drawNumberBlock,
   drawPlaceholderBlock,
-  drawStringBlock,
-  getSize,
-  isActionBlock
+  getSize
 } from './block';
 
-const generatePlaceholderBlock = (prefixedRelation: string) =>
-  pipe(removePrefix(prefixedRelation) as SymbolRelation, (relation) =>
+const generatePlaceholderBlock = (typedRelation: TypedRelation) =>
+  pipe(unpackRelation(typedRelation), (relation) =>
     pipe(
       relation,
       getPlaceholder(config.locale),
@@ -31,22 +30,7 @@ const generatePlaceholderBlock = (prefixedRelation: string) =>
     )
   );
 
-const alignChildElements = (childElements: ReadonlyArray<SVGGElement>) =>
-  pipe(
-    childElements,
-    RA.reduce(RNEA.of([] as SVGGElement[]), (acc, cur) =>
-      isActionBlock(cur)
-        ? pipe(acc, RA.append([cur]))
-        : pipe(acc, RNEA.last, RA.last, O.exists(isActionBlock))
-          ? pipe(acc, RA.append([cur]))
-          : pipe(
-            acc,
-            RNEA.modifyLast((a) => [...a, cur])
-          )
-    )
-  );
-
-export const drawToolbox = (category: SymbolCategory) => {
+export const generateToolbox = (category: SymbolCategory) => {
   const childElementTable = pipe(
     category,
     getSymbolEntities,
@@ -54,27 +38,12 @@ export const drawToolbox = (category: SymbolCategory) => {
       pipe(
         entity,
         getSyntax(config.locale),
-        RNEA.map((a) => (isPrefixedRelation(a) ? generatePlaceholderBlock(a) : drawLabel(a)))
+        RNEA.map((a) => (isTypedRelation(a) ? generatePlaceholderBlock(a) : drawLabel(a)))
       )
     )
   );
 
-  const blocks = pipe(
-    childElementTable,
-    RA.map((childElements) =>
-      category === SymbolCategory.TriggerAction
-        ? drawActionBlock(alignChildElements(childElements))(true)
-        : category === SymbolCategory.Action
-          ? drawActionBlock(alignChildElements(childElements))(false)
-          : category === SymbolCategory.Condition
-            ? drawConditionBlock(childElements)
-            : category === SymbolCategory.Number
-              ? drawNumberBlock(childElements)
-              : category === SymbolCategory.String
-                ? drawStringBlock(RNEA.head(childElements))
-                : document.createElementNS('http://www.w3.org/2000/svg', 'g')
-    )
-  );
+  const blocks = pipe(childElementTable, RA.map(drawBlock(category)));
 
   const toolbox = document.createElementNS('http://www.w3.org/2000/svg', 'g');
   toolbox.classList.add('toolbox');
