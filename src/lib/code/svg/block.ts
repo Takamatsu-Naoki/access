@@ -407,7 +407,17 @@ export const drawPlaceholderBlock = (category: SymbolCategory) => (placeholder: 
   return block;
 };
 
-const isActionBlock = (element: SVGGElement) => element.classList.contains('action-block');
+export const isLabel = (element: Element) => element.classList.contains('label');
+
+export const isTriggerActionBlock = (element: Element) => element.classList.contains('trigger-action-block');
+
+export const isActionBlock = (element: Element) => element.classList.contains('action-block');
+
+export const isConditionBlock = (element: Element) => element.classList.contains('condition-block');
+
+export const isNumberBlock = (element: Element) => element.classList.contains('number-block');
+
+export const isStringBlock = (element: Element) => element.classList.contains('string-block');
 
 const alignChildElements = (childElements: ReadonlyArray<SVGGElement>) =>
   pipe(
