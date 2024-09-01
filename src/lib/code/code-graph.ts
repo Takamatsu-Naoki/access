@@ -1,4 +1,4 @@
-import type { Graph } from '$lib/code/graph';
+import type { Graph } from '$lib/code/fp-ts-utils/graph';
 import { SymbolEntity } from '$lib/resource/graph/symbol-entity';
 import { SymbolRelation } from '$lib/resource/graph/symbol-relation';
 
