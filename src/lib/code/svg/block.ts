@@ -2,7 +2,7 @@ import { pipe } from 'fp-ts/function';
 import * as O from 'fp-ts/Option';
 import * as RA from 'fp-ts/ReadonlyArray';
 import * as RNEA from 'fp-ts/lib/ReadonlyNonEmptyArray';
-import * as S from '$lib/code/fp-ts-utils/SVG';
+import * as S from '$lib/code/fp-ts-utils/svg';
 import { SymbolCategory } from '$lib/resource/graph/symbol-category';
 
 export const getSize = (element: SVGGraphicsElement) => {
@@ -408,3 +408,32 @@ export const drawPlaceholderBlock = (category: SymbolCategory) => (placeholder: 
 };
 
 const isActionBlock = (element: SVGGElement) => element.classList.contains('action-block');
+
+const alignChildElements = (childElements: ReadonlyArray<SVGGElement>) =>
+  pipe(
+    childElements,
+    RA.reduce(RNEA.of([] as SVGGElement[]), (acc, cur) =>
+      isActionBlock(cur)
+        ? pipe(acc, RA.append([cur]))
+        : pipe(acc, RNEA.last, RA.last, O.exists(isActionBlock))
+          ? pipe(acc, RA.append([cur]))
+          : pipe(
+            acc,
+            RNEA.modifyLast((a) => [...a, cur])
+          )
+    )
+  );
+
+export const drawBlock =
+  (category: SymbolCategory) => (childElements: RNEA.ReadonlyNonEmptyArray<SVGGElement>) =>
+    category === SymbolCategory.TriggerAction
+      ? drawActionBlock(alignChildElements(childElements))(true)
+      : category === SymbolCategory.Action
+        ? drawActionBlock(alignChildElements(childElements))(false)
+        : category === SymbolCategory.Condition
+          ? drawConditionBlock(childElements)
+          : category === SymbolCategory.Number
+            ? drawNumberBlock(childElements)
+            : category === SymbolCategory.String
+              ? drawStringBlock(RNEA.head(childElements))
+              : document.createElementNS('http://www.w3.org/2000/svg', 'g');
