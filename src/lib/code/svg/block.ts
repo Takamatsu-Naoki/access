@@ -437,3 +437,8 @@ export const drawBlock =
             : category === SymbolCategory.String
               ? drawStringBlock(RNEA.head(childElements))
               : document.createElementNS('http://www.w3.org/2000/svg', 'g');
+
+export const setData = (key: string) => (value: string) => (block: SVGGElement) => {
+  block.dataset[key] = value;
+  return block;
+};

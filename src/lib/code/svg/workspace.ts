@@ -18,7 +18,7 @@ import {
 } from '$lib/resource/graph/symbol-category';
 import { getSyntax, isLabelText, unpackRelation } from '$lib/resource/syntax-def';
 import { config } from '$lib/resource/config';
-import { drawLabel, drawPlaceholderBlock, getSize, drawBlock } from './block';
+import { drawLabel, drawPlaceholderBlock, getSize, drawBlock, setData } from './block';
 import { getPlaceholder } from '$lib/resource/placeholder-def';
 
 const isValueRelation = (relation: SymbolRelation) =>
@@ -48,12 +48,14 @@ const generateBlockByRelation =
         ? generateValueLabel(graph)(nodeId)(relation)
         : pipe(
           resolveNodeByLink(graph)(nodeId)(relation),
-          O.map((a) =>
-            pipe(findNodeById(graph)(a), O.exists(isBlankEntity))
-              ? drawPlaceholderBlock(getCategoryByRelation(relation))(
-                getPlaceholder(config.locale)(relation)
+          O.map((childNodeId) =>
+            pipe(findNodeById(graph)(childNodeId), O.exists(isBlankEntity))
+              ? pipe(
+                getPlaceholder(config.locale)(relation),
+                drawPlaceholderBlock(getCategoryByRelation(relation)),
+                setData('nodeId')(childNodeId.toString())
               )
-              : generateBlock(graph)(a)
+              : generateBlock(graph)(childNodeId)
           ),
           O.getOrElse(() => document.createElementNS('http://www.w3.org/2000/svg', 'g'))
         )
@@ -78,7 +80,7 @@ const generateBlock =
 
       const category = getCategoryByEntity(entity.value);
 
-      return drawBlock(category)(childElements);
+      return pipe(drawBlock(category)(childElements), setData('nodeId')(nodeId.toString()));
     };
 
 export const generateWorkspace = (graph: CodeGraph) => {
