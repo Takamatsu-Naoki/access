@@ -1,4 +1,5 @@
 import { pipe } from 'fp-ts/function';
+import * as O from 'fp-ts/Option';
 import * as RA from 'fp-ts/ReadonlyArray';
 import * as RNEA from 'fp-ts/lib/ReadonlyNonEmptyArray';
 import * as S from '$lib/code/fp-ts-utils/SVG';
@@ -90,6 +91,8 @@ const concave = (path: string) =>
 
 export const drawActionBlockPath =
   (width: number) => (heights: RNEA.ReadonlyNonEmptyArray<number>) => (isTrigger: boolean) => {
+    const isMultiLineBlock = 1 < heights.length;
+
     const blockPath = document.createElementNS('http://www.w3.org/2000/svg', 'path');
     blockPath.classList.add(
       'block-path',
@@ -101,17 +104,24 @@ export const drawActionBlockPath =
         S.draw,
         S.A.moveTo(0, 0),
         isTrigger ? S.R.right(30) : convex,
-        S.R.right(width + (isTrigger ? 30 : 0)),
+        S.R.right(width + (isMultiLineBlock ? 30 : 0)),
         (upperSideOfPath) =>
           pipe(
             heights,
             RA.reduceWithIndex(upperSideOfPath, (index, path, height) =>
               index % 2 === 0
                 ? pipe(path, S.R.down(height))
-                : pipe(path, S.R.left(width - (isTrigger ? 0 : 30)), concave, S.R.down(height), convex, S.R.right(width - (isTrigger ? 0 : 30)))
+                : pipe(
+                  path,
+                  S.R.left(width - (isMultiLineBlock ? 0 : 30)),
+                  concave,
+                  S.R.down(height),
+                  convex,
+                  S.R.right(width - (isMultiLineBlock ? 0 : 30))
+                )
             )
           ),
-        S.R.left(width + (isTrigger ? 30 : 0)),
+        S.R.left(width + (isMultiLineBlock ? 30 : 0)),
         isTrigger ? S.R.left(30) : concave,
         S.closePath
       )
@@ -162,6 +172,8 @@ export const drawActionBlock = (childElements: ChildElementTable) => (isTrigger:
     )
   );
 
+  const isMultiLineBlock = 1 < heights.length;
+
   const blockPath = drawActionBlockPath(width)(heights)(isTrigger);
 
   const block = document.createElementNS('http://www.w3.org/2000/svg', 'g');
@@ -171,7 +183,7 @@ export const drawActionBlock = (childElements: ChildElementTable) => (isTrigger:
   let offsetY = 0;
 
   childElements.forEach((inlineElements, rowNumber) => {
-    let offsetX = isTrigger ? 60 : 30;
+    let offsetX = isMultiLineBlock ? 60 : 30;
 
     inlineElements.forEach((element, columnNumber) => {
       if (rowNumber % 2 === 0) {
@@ -192,8 +204,6 @@ export const drawActionBlock = (childElements: ChildElementTable) => (isTrigger:
 
   return block;
 };
-
-export const isActionBlock = (element: SVGGElement) => element.classList.contains('action-block');
 
 export const drawConditionBlockPath = (width: number) => (height: number) => {
   const dy = height / 2;
@@ -389,10 +399,12 @@ export const drawPlaceholderBlock = (category: SymbolCategory) => (placeholder: 
           : category === SymbolCategory.String
             ? drawStringBlock(label)
             : category === SymbolCategory.Literal
-            ? label
-            : document.createElementNS('http://www.w3.org/2000/svg', 'g');
+              ? label
+              : document.createElementNS('http://www.w3.org/2000/svg', 'g');
 
   block.classList.add('placeholder-block');
 
   return block;
 };
+
+const isActionBlock = (element: SVGGElement) => element.classList.contains('action-block');
