@@ -7,7 +7,8 @@ import {
   type CodeGraph,
   isSymbolEntity,
   isNumericEntity,
-  isStringEntity
+  isStringEntity,
+  isBlankEntity
 } from '$lib/code/code-graph';
 import { SymbolRelation } from '$lib/resource/graph/symbol-relation';
 import {
@@ -17,12 +18,7 @@ import {
 } from '$lib/resource/graph/symbol-category';
 import { getSyntax, isLabelText, unpackRelation } from '$lib/resource/syntax-def';
 import { config } from '$lib/resource/config';
-import {
-  drawLabel,
-  drawPlaceholderBlock,
-  getSize,
-  drawBlock
-} from './block';
+import { drawLabel, drawPlaceholderBlock, getSize, drawBlock } from './block';
 import { getPlaceholder } from '$lib/resource/placeholder-def';
 
 const isValueRelation = (relation: SymbolRelation) =>
@@ -32,8 +28,16 @@ const generateValueLabel = (graph: CodeGraph) => (nodeId: number) => (relation: 
   pipe(
     resolveNodeByLink(graph)(nodeId)(relation),
     O.flatMap(findNodeById(graph)),
-    O.map((a) => (isNumericEntity(a) ? a.value.toString() : isStringEntity(a) ? a.value : '')),
-    O.getOrElse(() => getPlaceholder(config.locale)(relation)),
+    O.map((a) =>
+      isBlankEntity(a)
+        ? getPlaceholder(config.locale)(relation)
+        : isNumericEntity(a)
+          ? a.value.toString()
+          : isStringEntity(a)
+            ? a.value
+            : ''
+    ),
+    O.getOrElse(() => ''),
     drawLabel
   );
 
@@ -44,12 +48,14 @@ const generateBlockByRelation =
         ? generateValueLabel(graph)(nodeId)(relation)
         : pipe(
           resolveNodeByLink(graph)(nodeId)(relation),
-          O.map(generateBlock(graph)),
-          O.getOrElse(() =>
-            drawPlaceholderBlock(getCategoryByRelation(relation))(
-              getPlaceholder(config.locale)(relation)
-            )
-          )
+          O.map((a) =>
+            pipe(findNodeById(graph)(a), O.exists(isBlankEntity))
+              ? drawPlaceholderBlock(getCategoryByRelation(relation))(
+                getPlaceholder(config.locale)(relation)
+              )
+              : generateBlock(graph)(a)
+          ),
+          O.getOrElse(() => document.createElementNS('http://www.w3.org/2000/svg', 'g'))
         )
     );
 
