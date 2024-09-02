@@ -1,14 +1,16 @@
 import { pipe } from 'fp-ts/function';
+import * as O from 'fp-ts/Option';
 import * as RA from 'fp-ts/ReadonlyArray';
 import * as RNEA from 'fp-ts/ReadonlyNonEmptyArray';
 
 export type Table<E> = RNEA.ReadonlyNonEmptyArray<ReadonlyArray<E>>;
 
+export type CellPosition = Readonly<{ rowNumber: number; columnNumber: number }>;
+
 export const findElement =
   <E>(table: Table<E>) =>
-    (rowNumber: number) =>
-      (columnNumber: number) =>
-        table[rowNumber][columnNumber];
+    (position: CellPosition) =>
+      pipe(table, RA.lookup(position.rowNumber), O.flatMap(RA.lookup(position.columnNumber)));
 
 export const appendElement =
   <E>(table: Table<E>) =>
