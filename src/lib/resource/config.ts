@@ -29,56 +29,49 @@ type KeyBinding = {
   back: string;
 };
 
-export const keyBinding: ReadonlyMap<KeyBindingMode, KeyBinding> = new Map([
-  [
-    KeyBindingMode.Arrow,
-    {
-      up: 'ArrowUp',
-      down: 'ArrowDown',
-      left: 'ArrowLeft',
-      right: 'ArrowRight',
-      enter: 'f',
-      back: 'd'
-    }
-  ],
-  [
-    KeyBindingMode.Wasd,
-    {
-      up: 'w',
-      down: 'a',
-      left: 's',
-      right: 'd',
-      enter: 'j',
-      back: 'k'
-    }
-  ],
-  [
-    KeyBindingMode.Hjkl,
-    {
-      up: 'k',
-      down: 'j',
-      left: 'h',
-      right: 'l',
-      enter: 'f',
-      back: 'd'
-    }
-  ],
-  [
-    KeyBindingMode.NumericKeypad,
-    {
-      up: '8',
-      down: '2',
-      left: '4',
-      right: '6',
-      enter: '5',
-      back: '9'
-    }
-  ]
-]);
+type KeyBindingDef = {
+  [key in KeyBindingMode]: KeyBinding;
+};
+
+const keyBindingDef: KeyBindingDef = {
+  [KeyBindingMode.Arrow]: {
+    up: 'ArrowUp',
+    down: 'ArrowDown',
+    left: 'ArrowLeft',
+    right: 'ArrowRight',
+    enter: 'f',
+    back: 'd'
+  },
+  [KeyBindingMode.Wasd]: {
+    up: 'w',
+    down: 'a',
+    left: 's',
+    right: 'd',
+    enter: 'j',
+    back: 'k'
+  },
+  [KeyBindingMode.Hjkl]: {
+    up: 'k',
+    down: 'j',
+    left: 'h',
+    right: 'l',
+    enter: 'f',
+    back: 'd'
+  },
+  [KeyBindingMode.NumericKeypad]: {
+    up: '8',
+    down: '2',
+    left: '4',
+    right: '6',
+    enter: '5',
+    back: '9'
+  }
+};
+
+export const getKeyBinding = (keyBindingMode: KeyBindingMode) => keyBindingDef[keyBindingMode];
 
 export const config: Config = {
   voiceInput: false,
   locale: Locale.EnUS,
   keyBindingMode: KeyBindingMode.Hjkl
 };
-
