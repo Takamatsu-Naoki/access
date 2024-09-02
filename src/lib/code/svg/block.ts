@@ -5,14 +5,12 @@ import * as RNEA from 'fp-ts/lib/ReadonlyNonEmptyArray';
 import * as S from '$lib/code/fp-ts-utils/svg';
 import { SymbolCategory } from '$lib/resource/graph/symbol-category';
 
-export const getSize = (element: SVGGraphicsElement) => {
-  const hiddenSVG = document.getElementById('hidden-SVG');
-
-  hiddenSVG?.append(element);
-  const boundingBox = element.getBBox();
-  hiddenSVG?.removeChild(element);
-
-  return boundingBox;
+export const getOffset = (element: Element) => {
+  const transform = element?.getAttribute('transform') ?? '';
+  return {
+    x: Number((transform.match(/(?<=\().+(?=\s)/) ?? [0])[0]),
+    y: Number((transform.match(/(?<=\s).+(?=\))/) ?? [0])[0])
+  };
 };
 
 const drawText = (content: string) => {
@@ -146,6 +144,7 @@ export const drawActionBlock = (childElements: ChildElementTable) => (isTrigger:
   const width = pipe(
     childSizes,
     doubleMap((a) => a.width),
+    RA.filterWithIndex((i, _a) => i % 2 === 0),
     RA.map((a) =>
       pipe(
         a,
@@ -180,26 +179,27 @@ export const drawActionBlock = (childElements: ChildElementTable) => (isTrigger:
   block.classList.add('block', isTrigger ? 'trigger-action-block' : 'action-block');
   block.append(blockPath);
 
+  let offsetX = 0;
   let offsetY = 0;
 
   childElements.forEach((inlineElements, rowNumber) => {
-    let offsetX = isMultiLineBlock ? 60 : 30;
+    offsetX = isMultiLineBlock ? 60 : 30;
 
     inlineElements.forEach((element, columnNumber) => {
-      if (rowNumber % 2 === 0) {
-        element.setAttribute(
-          'transform',
-          `translate(${offsetX} ${offsetY + (heights[rowNumber] - childSizes[rowNumber][columnNumber].height) / 2})`
-        );
-        offsetX += childSizes[rowNumber][columnNumber].width + 6;
-      } else {
-        element.setAttribute('transform', `translate(${30} ${offsetY})`);
-      }
+      const translate =
+        rowNumber % 2 === 0
+          ? `translate(${offsetX} ${offsetY + (heights[rowNumber] - childSizes[rowNumber][columnNumber].height) / 2})`
+          : `translate(${30} ${offsetY})`;
+
+      element.setAttribute('transform', translate);
 
       block.append(element);
+
+      offsetX += rowNumber % 2 === 0 ? childSizes[rowNumber][columnNumber].width + 6 : 0;
+      offsetY += rowNumber % 2 !== 0 ? childSizes[rowNumber][columnNumber].height - 6 : 0;
     });
 
-    offsetY += heights[rowNumber];
+    offsetY += rowNumber % 2 === 0 ? heights[rowNumber] : 0;
   });
 
   return block;
@@ -407,9 +407,67 @@ export const drawPlaceholderBlock = (category: SymbolCategory) => (placeholder: 
   return block;
 };
 
+export const drawArrow = () => {
+  const arrow = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+  arrow.classList.add('highlight');
+  arrow.setAttribute(
+    'd',
+    pipe(
+      S.draw,
+      S.A.moveTo(2.4, 7.4),
+      S.R.right(11),
+      S.R.up(4.1),
+      S.R.cubicCurve(0, -0.4)(0.7, -0.4)(1.1, 0),
+      S.R.lineTo(9, 7.9),
+      S.R.cubicCurve(0.5, 0.5)(0.5, 1)(0, 1.5),
+      S.R.lineTo(-9, 7.9),
+      S.R.cubicCurve(-0.4, 0.4)(-1.1, 0.4)(-1.1, 0),
+      S.R.up(4.1),
+      S.R.left(11),
+      S.R.cubicCurve(-2.4, 0)(-2.4, 0)(-2.4, -2.4),
+      S.R.up(4.3),
+      S.R.cubicCurve(0, -2.4)(0, -2.4)(2.4, -2.4),
+      S.closePath
+    )
+  );
+
+  return arrow;
+};
+
+export const drawOutline = (width: number) => (height: number) => {
+  const outline = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+  outline.classList.add('highlight');
+  outline.setAttribute(
+    'd',
+    pipe(
+      S.draw,
+      S.A.moveTo(-6, -6),
+      S.R.right(width + 12),
+      S.R.down(height + 12),
+      S.R.left(width + 12),
+      S.closePath,
+      S.A.moveTo(0, 3),
+      S.R.down(height - 6),
+      S.R.cubicCurve(0, 2)(1.2, 3)(3, 3),
+      S.R.right(width - 6),
+      S.R.cubicCurve(2, 0)(3, -1.2)(3, -3),
+      S.R.up(height - 6),
+      S.R.cubicCurve(0, -2)(-1.2, -3)(-3, -3),
+      S.R.left(width - 6),
+      S.R.cubicCurve(-1.2, 0)(-3, 1.2)(-3, 3),
+      S.closePath
+    )
+  );
+
+  return outline;
+};
+
 export const isLabel = (element: Element) => element.classList.contains('label');
 
-export const isTriggerActionBlock = (element: Element) => element.classList.contains('trigger-action-block');
+export const isBlock = (element: Element) => element.classList.contains('block');
+
+export const isTriggerActionBlock = (element: Element) =>
+  element.classList.contains('trigger-action-block');
 
 export const isActionBlock = (element: Element) => element.classList.contains('action-block');
 
@@ -419,18 +477,39 @@ export const isNumberBlock = (element: Element) => element.classList.contains('n
 
 export const isStringBlock = (element: Element) => element.classList.contains('string-block');
 
+export const isPlaceholderBlock = (element: Element) =>
+  element.classList.contains('placeholder-block');
+
+export const getCategoryByElement = (element: Element) =>
+  isTriggerActionBlock(element)
+    ? SymbolCategory.TriggerAction
+    : isActionBlock(element)
+      ? SymbolCategory.Action
+      : isConditionBlock(element)
+        ? SymbolCategory.Condition
+        : isNumberBlock(element)
+          ? SymbolCategory.Number
+          : isStringBlock(element)
+            ? SymbolCategory.String
+            : SymbolCategory.None;
+
 const alignChildElements = (childElements: ReadonlyArray<SVGGElement>) =>
   pipe(
     childElements,
     RA.reduce(RNEA.of([] as SVGGElement[]), (acc, cur) =>
-      isActionBlock(cur)
-        ? pipe(acc, RA.append([cur]))
-        : pipe(acc, RNEA.last, RA.last, O.exists(isActionBlock))
+      isActionBlock(cur) && pipe(acc, RNEA.last, RA.last, O.exists(isActionBlock))
+        ? pipe(
+          acc,
+          RNEA.modifyLast((a) => [...a, cur])
+        )
+        : isActionBlock(cur)
           ? pipe(acc, RA.append([cur]))
-          : pipe(
-            acc,
-            RNEA.modifyLast((a) => [...a, cur])
-          )
+          : pipe(acc, RNEA.last, RA.last, O.exists(isActionBlock))
+            ? pipe(acc, RA.append([cur]))
+            : pipe(
+              acc,
+              RNEA.modifyLast((a) => [...a, cur])
+            )
     )
   );
 
@@ -448,7 +527,45 @@ export const drawBlock =
               ? drawStringBlock(RNEA.head(childElements))
               : document.createElementNS('http://www.w3.org/2000/svg', 'g');
 
+export const getData = (key: string) => (block: Element) =>
+  block instanceof SVGGElement ? (block.dataset[key] ?? '') : '';
+
 export const setData = (key: string) => (value: string) => (block: SVGGElement) => {
   block.dataset[key] = value;
   return block;
 };
+
+export const resolveTopLevelBlock = (element: Element): Element =>
+  pipe(
+    element.parentElement,
+    O.fromNullable,
+    O.match(
+      () => element,
+      (a) => (isBlock(a) ? resolveTopLevelBlock(a) : element)
+    )
+  );
+
+export const resolveBlock = (element: Element): Element =>
+  pipe(
+    element.parentElement,
+    O.fromNullable,
+    O.match(
+      () => element,
+      (a) => (isBlock(element) ? element : isBlock(a) ? a : resolveBlock(a))
+    )
+  );
+
+export const resolveActionBlock = (element: Element): Element =>
+  pipe(
+    element.parentElement,
+    O.fromNullable,
+    O.match(
+      () => element,
+      (a) =>
+        isTriggerActionBlock(element) || isActionBlock(element)
+          ? element
+          : isTriggerActionBlock(a) || isActionBlock(a)
+            ? a
+            : resolveActionBlock(a)
+    )
+  );
