@@ -10,7 +10,8 @@ export const SymbolCategory = {
   Sound: 'sound',
   Event: 'event',
   Variable: 'variable',
-  Literal: 'literal'
+  Literal: 'literal',
+  None: 'none'
 } as const;
 
 export type SymbolCategory = (typeof SymbolCategory)[keyof typeof SymbolCategory];
@@ -67,7 +68,8 @@ const symbolEntitiesByCategory: SymbolEntitiesByCategory = {
   [SymbolCategory.Sound]: [],
   [SymbolCategory.Event]: [],
   [SymbolCategory.Variable]: [],
-  [SymbolCategory.Literal]: []
+  [SymbolCategory.Literal]: [],
+  [SymbolCategory.None]: []
 };
 
 export const getSymbolEntities = (category: SymbolCategory) => symbolEntitiesByCategory[category];
