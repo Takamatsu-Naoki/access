@@ -5,6 +5,16 @@ import * as RNEA from 'fp-ts/lib/ReadonlyNonEmptyArray';
 import * as S from '$lib/code/fp-ts-utils/svg';
 import { SymbolCategory } from '$lib/resource/graph/symbol-category';
 
+export const getSize = (element: SVGGraphicsElement) => {
+  const hiddenSVG = document.getElementById('hidden-SVG');
+
+  hiddenSVG?.append(element);
+  const boundingBox = element.getBBox();
+  hiddenSVG?.removeChild(element);
+
+  return boundingBox;
+};
+
 export const getOffset = (element: Element) => {
   const transform = element?.getAttribute('transform') ?? '';
   return {
