@@ -242,24 +242,26 @@ export const drawConditionBlockPath = (width: number) => (height: number) => {
 type ChildElements = RNEA.ReadonlyNonEmptyArray<SVGGElement>;
 
 export const drawConditionBlock = (childElements: ChildElements) => {
-  const margin = (classList: DOMTokenList) =>
+  const padding = (classList: DOMTokenList) =>
     classList.contains('label')
       ? 23
       : classList.contains('condition-block')
         ? 7
         : classList.contains('number-block')
           ? 20
+          : classList.contains('string-block')
+          ? 30
           : 11;
 
-  const leftMargin = pipe(childElements, RNEA.head, (a) => a.classList, margin);
-  const rightMargin = pipe(childElements, RNEA.last, (a) => a.classList, margin);
+  const leftPadding = pipe(childElements, RNEA.head, (a) => a.classList, padding);
+  const rightPadding = pipe(childElements, RNEA.last, (a) => a.classList, padding);
 
   const childSizes = pipe(childElements, RNEA.map(getSize));
 
   const width = pipe(
     childSizes,
     RA.reduce(-6, (acc, cur) => acc + cur.width + 6),
-    (a) => a + leftMargin + rightMargin
+    (a) => a + leftPadding + rightPadding
   );
 
   const height = pipe(
@@ -274,7 +276,7 @@ export const drawConditionBlock = (childElements: ChildElements) => {
   block.classList.add('block', 'condition-block');
   block.append(blockPath);
 
-  let offsetX = leftMargin;
+  let offsetX = leftPadding;
 
   childElements.forEach((element, columnNumber) => {
     element.setAttribute(
@@ -316,7 +318,7 @@ export const drawNumberBlockPath = (width: number) => (height: number) => {
 };
 
 export const drawNumberBlock = (childElements: ChildElements) => {
-  const margin = (classList: DOMTokenList) =>
+  const padding = (classList: DOMTokenList) =>
     classList.contains('label')
       ? 12
       : classList.contains('number-block')
@@ -325,15 +327,15 @@ export const drawNumberBlock = (childElements: ChildElements) => {
           ? 18
           : 6;
 
-  const leftMargin = pipe(childElements, RNEA.head, (a) => a.classList, margin);
-  const rightMargin = pipe(childElements, RNEA.last, (a) => a.classList, margin);
+  const leftPadding = pipe(childElements, RNEA.head, (a) => a.classList, padding);
+  const rightPadding = pipe(childElements, RNEA.last, (a) => a.classList, padding);
 
   const childSizes = pipe(childElements, RNEA.map(getSize));
 
   const width = pipe(
     childSizes,
     RA.reduce(-6, (acc, cur) => acc + cur.width + 6),
-    (a) => a + leftMargin + rightMargin
+    (a) => a + leftPadding + rightPadding
   );
 
   const height = pipe(
@@ -348,7 +350,7 @@ export const drawNumberBlock = (childElements: ChildElements) => {
   block.classList.add('block', 'number-block');
   block.append(blockPath);
 
-  let offsetX = leftMargin;
+  let offsetX = leftPadding;
 
   childElements.forEach((element, columnNumber) => {
     element.setAttribute(
