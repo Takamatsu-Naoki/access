@@ -1,8 +1,6 @@
 import { pipe } from 'fp-ts/function';
 import * as O from 'fp-ts/Option';
-import * as N from 'fp-ts/number';
 import * as RA from 'fp-ts/ReadonlyArray';
-import * as RM from 'fp-ts/ReadonlyMap';
 import {
   addLink,
   addNodeWithRelation,
@@ -16,9 +14,9 @@ import {
 } from '$lib/code/fp-ts-utils/graph';
 import { SymbolEntity } from '$lib/resource/graph/symbol-entity';
 import { SymbolRelation } from '$lib/resource/graph/symbol-relation';
-import { findElement, type CellPosition } from './fp-ts-utils/table';
-import { moveDown, type ElementTable } from './label-table';
-import { getData, resolveBlock } from './svg/block';
+import { findElement, type CellPosition } from '../fp-ts-utils/table';
+import { moveDown, type ElementTable } from '../data/label-table';
+import { getData, resolveBlock } from '../svg/block';
 import { getSyntax, isTypedRelation, unpackRelation } from '$lib/resource/syntax-def';
 import { config } from '$lib/resource/config';
 
@@ -50,7 +48,8 @@ export const isSymbolEntity = (entity: CodeEntity): entity is SymbolEntity =>
 
 export const isBlankEntity = (entity: CodeEntity): entity is BlankEntity => entity === BlankEntity;
 
-export const isSectionEntity = (entity: CodeEntity): entity is SectionEntity => typeof entity !== 'string' && entity.type === 'section';
+export const isSectionEntity = (entity: CodeEntity): entity is SectionEntity =>
+  typeof entity !== 'string' && entity.type === 'section';
 
 export const isNumericEntity = (entity: CodeEntity): entity is NumericEntity =>
   typeof entity !== 'string' && entity.type === 'number';
@@ -184,7 +183,6 @@ export const getPreviousNodes =
         O.getOrElse(() => RA.fromArray([nodeId]))
       );
 
-
 export const getNextActionNodes =
   (graph: CodeGraph) =>
     (nodeId: number): ReadonlyArray<number> =>
@@ -194,4 +192,3 @@ export const getNextActionNodes =
         O.map((a) => pipe(RA.fromArray([nodeId]), RA.concat(getNextActionNodes(graph)(a)))),
         O.getOrElse(() => RA.fromArray([nodeId]))
       );
-

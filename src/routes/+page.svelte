@@ -11,7 +11,7 @@
 		type CodeEntity,
 		attachBlock,
 		isSectionEntity
-	} from '$lib/code/code-graph';
+	} from '$lib/code/data/code-graph';
 	import { generateWorkspace } from '$lib/code/svg/workspace';
 	import { SymbolRelation } from '$lib/resource/graph/symbol-relation';
 	import { SymbolEntity } from '$lib/resource/graph/symbol-entity';
@@ -23,7 +23,7 @@
 		moveLeft,
 		moveRight,
 		type ElementTable
-	} from '$lib/code/label-table';
+	} from '$lib/code/data/label-table';
 	import { findElement, type CellPosition } from '$lib/code/fp-ts-utils/table';
 	import {
 		getOffset,
@@ -36,7 +36,6 @@
 		resolveBlock,
 		isClosedSectionBlock,
 		isOpenedSectionBlock,
-		isSectionBlock
 	} from '$lib/code/svg/block';
 	import { config, getKeyBinding } from '$lib/resource/config';
 	import { findNodeById } from '$lib/code/fp-ts-utils/graph';

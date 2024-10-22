@@ -11,7 +11,7 @@ import {
   isBlankEntity,
   isSectionEntity,
   getNextActionNodes,
-} from '$lib/code/code-graph';
+} from '$lib/code/data/code-graph';
 import { SymbolRelation } from '$lib/resource/graph/symbol-relation';
 import {
   getCategoryByEntity,

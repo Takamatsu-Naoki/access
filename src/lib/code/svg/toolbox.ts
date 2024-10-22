@@ -29,7 +29,7 @@ import {
   resolveBlock
 } from './block';
 import { findElement, type CellPosition } from '../fp-ts-utils/table';
-import { isBottom, moveDown, type ElementTable } from '../label-table';
+import { isBottom, moveDown, type ElementTable } from '../data/label-table';
 import { SymbolEntity } from '$lib/resource/graph/symbol-entity';
 
 const generatePlaceholderBlock = (typedRelation: TypedRelation) =>

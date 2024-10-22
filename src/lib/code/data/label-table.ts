@@ -8,7 +8,7 @@ import {
   appendElement,
   appendEmptyRow
 } from '$lib/code/fp-ts-utils/table';
-import { resolveActionBlock, isActionBlock, isLabel, isTriggerActionBlock } from './svg/block';
+import { resolveActionBlock, isActionBlock, isLabel, isTriggerActionBlock } from '../svg/block';
 
 export type ElementTable = Table<Element>;
 
