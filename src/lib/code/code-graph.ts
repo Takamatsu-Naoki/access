@@ -8,8 +8,10 @@ import {
   addNodeWithRelation,
   findNodeById,
   findRelation,
+  findSubjectNode,
   removeLink,
   replaceNode,
+  resolveNodeByLink,
   type Graph
 } from '$lib/code/fp-ts-utils/graph';
 import { SymbolEntity } from '$lib/resource/graph/symbol-entity';
@@ -23,6 +25,12 @@ import { config } from '$lib/resource/config';
 export const BlankEntity = 'blank' as const;
 export type BlankEntity = typeof BlankEntity;
 
+type SectionEntity = {
+  type: 'section';
+  path: string;
+  description: string;
+};
+
 type NumericEntity = {
   type: 'number';
   value: number;
@@ -33,7 +41,7 @@ type StringEntity = {
   value: string;
 };
 
-export type CodeEntity = SymbolEntity | BlankEntity | NumericEntity | StringEntity;
+export type CodeEntity = SymbolEntity | BlankEntity | SectionEntity | NumericEntity | StringEntity;
 
 export type CodeGraph = Graph<CodeEntity, SymbolRelation>;
 
@@ -41,6 +49,8 @@ export const isSymbolEntity = (entity: CodeEntity): entity is SymbolEntity =>
   typeof entity === 'string' && entity !== BlankEntity;
 
 export const isBlankEntity = (entity: CodeEntity): entity is BlankEntity => entity === BlankEntity;
+
+export const isSectionEntity = (entity: CodeEntity): entity is SectionEntity => typeof entity !== 'string' && entity.type === 'section';
 
 export const isNumericEntity = (entity: CodeEntity): entity is NumericEntity =>
   typeof entity !== 'string' && entity.type === 'number';
@@ -97,7 +107,7 @@ const attachPlaceholderBlock = (nodeId: number) => (entity: SymbolEntity) => (gr
     )
   );
 
-const getNodeId = (workspaceTable: ElementTable) => (currentPosition: CellPosition) =>
+export const getNodeId = (workspaceTable: ElementTable) => (currentPosition: CellPosition) =>
   pipe(
     currentPosition,
     findElement(workspaceTable),
@@ -163,3 +173,25 @@ export const attachBlock =
             ),
             O.getOrElse(() => graph)
           );
+
+export const getPreviousNodes =
+  (graph: CodeGraph) =>
+    (nodeId: number): ReadonlyArray<number> =>
+      pipe(
+        graph,
+        findSubjectNode(nodeId),
+        O.map((a) => pipe(RA.fromArray([nodeId]), RA.concat(getPreviousNodes(graph)(a)))),
+        O.getOrElse(() => RA.fromArray([nodeId]))
+      );
+
+
+export const getNextActionNodes =
+  (graph: CodeGraph) =>
+    (nodeId: number): ReadonlyArray<number> =>
+      pipe(
+        graph,
+        resolveNodeByLink(nodeId)(SymbolRelation.NextAction as SymbolRelation),
+        O.map((a) => pipe(RA.fromArray([nodeId]), RA.concat(getNextActionNodes(graph)(a)))),
+        O.getOrElse(() => RA.fromArray([nodeId]))
+      );
+

@@ -22,12 +22,14 @@ import {
   getCategoryByElement,
   getSize,
   isActionBlock,
+  isClosedSectionBlock,
+  isOpenedSectionBlock,
   isPlaceholderBlock,
   isTriggerActionBlock,
   resolveBlock
 } from './block';
 import { findElement, type CellPosition } from '../fp-ts-utils/table';
-import { moveDown, type ElementTable } from '../label-table';
+import { isBottom, moveDown, type ElementTable } from '../label-table';
 import { SymbolEntity } from '$lib/resource/graph/symbol-entity';
 
 const generatePlaceholderBlock = (typedRelation: TypedRelation) =>
@@ -82,18 +84,24 @@ const getCategoryForTriggerActionBlock =
     );
 
 const getCategoryForBlock = (workspaceTable: ElementTable) => (currentPosition: CellPosition) =>
-  pipe(
-    currentPosition,
-    findElement(workspaceTable),
-    O.map((a) =>
-      isActionBlock(a)
-        ? SymbolCategory.Action
-        : isTriggerActionBlock(a)
-          ? getCategoryForTriggerActionBlock(workspaceTable)(currentPosition)
-          : SymbolCategory.None
-    ),
-    O.getOrElse(() => SymbolCategory.None as SymbolCategory)
-  );
+  pipe(currentPosition, findElement(workspaceTable), O.exists(isOpenedSectionBlock))
+    ? SymbolCategory.None
+    : isBottom(workspaceTable)(currentPosition)
+      ? SymbolCategory.TriggerAction
+      : pipe(
+        currentPosition,
+        findElement(workspaceTable),
+        O.map((a) =>
+          isClosedSectionBlock(a)
+            ? SymbolCategory.None
+            : isActionBlock(a)
+              ? SymbolCategory.Action
+              : isTriggerActionBlock(a)
+                ? getCategoryForTriggerActionBlock(workspaceTable)(currentPosition)
+                : SymbolCategory.None
+        ),
+        O.getOrElse(() => SymbolCategory.None as SymbolCategory)
+      );
 
 const getCategoryForLabel = (workspaceTable: ElementTable) => (currentPosition: CellPosition) =>
   pipe(

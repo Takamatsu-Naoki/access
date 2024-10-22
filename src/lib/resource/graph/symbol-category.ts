@@ -119,6 +119,9 @@ const CategoryByEntity: CategoryByEntity = {
 
 export const getCategoryByEntity = (entity: SymbolEntity) => CategoryByEntity[entity];
 
+export const isTriggerAction = (entity: SymbolEntity) =>
+  getCategoryByEntity(entity) === SymbolCategory.TriggerAction;
+
 type SymbolCategoryByRelation = {
   [key in SymbolRelation]: SymbolCategory;
 };

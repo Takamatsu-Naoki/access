@@ -45,8 +45,14 @@ export const generateToolboxTable = (toolbox: Element) =>
     O.getOrElse(() => [[]] as ElementTable)
   );
 
+export const isTop = (position: CellPosition) =>
+  position.rowNumber === 0;
+
+export const isBottom = (table: ElementTable) => (position: CellPosition) =>
+  position.rowNumber === table.length - 1;
+
 export const moveUp = (table: ElementTable) => (position: CellPosition) =>
-  position.rowNumber === 0
+  isTop(position)
     ? {
       rowNumber: table.length - 1,
       columnNumber: 0
@@ -57,7 +63,7 @@ export const moveUp = (table: ElementTable) => (position: CellPosition) =>
     };
 
 export const moveDown = (table: ElementTable) => (position: CellPosition) =>
-  position.rowNumber === table.length - 1
+  isBottom(table)(position)
     ? {
       rowNumber: 0,
       columnNumber: 0

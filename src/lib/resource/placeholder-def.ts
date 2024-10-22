@@ -15,7 +15,7 @@ const placeholderDefByLocale: PlaceholderDefByLocale = {
     [SymbolRelation.Key]: 'some entered key',
     [SymbolRelation.Event]: 'some event',
     [SymbolRelation.Variable]: 'some variable',
-    [SymbolRelation.Sound]: 'some number',
+    [SymbolRelation.Sound]: 'some sound',
     [SymbolRelation.Number]: 'some number',
     [SymbolRelation.Coordinate]: 'some number',
     [SymbolRelation.Percentage]: 'some number',

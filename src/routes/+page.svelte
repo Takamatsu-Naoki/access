@@ -2,9 +2,16 @@
 	import { onMount } from 'svelte';
 	import { pipe } from 'fp-ts/function';
 	import * as O from 'fp-ts/Option';
+	import * as RM from 'fp-ts/ReadonlyMap';
+	import * as RA from 'fp-ts/ReadonlyArray';
+	import * as N from 'fp-ts/number';
 	import { generateToolbox } from '$lib/code/svg/toolbox';
-	import { type CodeGraph, type CodeEntity, attachBlock } from '$lib/code/code-graph';
-	import { BlankEntity } from '$lib/code/code-graph';
+	import {
+		type CodeGraph,
+		type CodeEntity,
+		attachBlock,
+		isSectionEntity
+	} from '$lib/code/code-graph';
 	import { generateWorkspace } from '$lib/code/svg/workspace';
 	import { SymbolRelation } from '$lib/resource/graph/symbol-relation';
 	import { SymbolEntity } from '$lib/resource/graph/symbol-entity';
@@ -26,9 +33,13 @@
 		isTriggerActionBlock,
 		getData,
 		isPlaceholderBlock,
-		resolveBlock
+		resolveBlock,
+		isClosedSectionBlock,
+		isOpenedSectionBlock,
+		isSectionBlock
 	} from '$lib/code/svg/block';
 	import { config, getKeyBinding } from '$lib/resource/config';
+	import { findNodeById } from '$lib/code/fp-ts-utils/graph';
 
 	const keyBinding = getKeyBinding(config.keyBindingMode);
 
@@ -41,16 +52,50 @@
 	let toolboxHasFocus = !workspaceHasFocus;
 
 	let graph: CodeGraph = {
-		nextNodeId: 2,
+		nextNodeId: 6,
 		nodes: new Map<number, CodeEntity>([
 			[0, SymbolEntity.ProgramStart],
-			[1, BlankEntity]
+			[1, { type: 'section', path: '1', description: 'Set up variables to store different sums.' }],
+			[
+				2,
+				{ type: 'section', path: '1.1', description: 'Print the results to see the final sums.' }
+			],
+			[3, SymbolEntity.StopSound],
+			[
+				4,
+				{
+					type: 'section',
+					path: '2',
+					description: 'Go through numbers from 0 to 99 and update sums based on conditions.'
+				}
+			],
+			[5, SymbolEntity.StopSound]
 		]),
 		links: [
 			{
 				subjectNodeId: 0,
 				relation: SymbolRelation.Action,
 				objectNodeId: 1
+			},
+			{
+				subjectNodeId: 1,
+				relation: SymbolRelation.Action,
+				objectNodeId: 2
+			},
+			{
+				subjectNodeId: 2,
+				relation: SymbolRelation.Action,
+				objectNodeId: 3
+			},
+			{
+				subjectNodeId: 1,
+				relation: SymbolRelation.NextAction,
+				objectNodeId: 4
+			},
+			{
+				subjectNodeId: 4,
+				relation: SymbolRelation.Action,
+				objectNodeId: 5
 			}
 		]
 	};
@@ -63,6 +108,8 @@
 
 	let currentToolboxPosition = defaultCellPosition;
 	let currentWorkspacePosition = defaultCellPosition;
+
+	let currentSectionId = 0;
 
 	const onKeyDown = (e: KeyboardEvent) => {
 		graph =
@@ -78,16 +125,53 @@
 					)
 				: graph;
 
+		const previousSectionId = currentSectionId;
+
+		currentSectionId = pipe(
+			currentWorkspacePosition,
+			findElement(workspaceTable),
+			O.map((block) =>
+				e.key === keyBinding.enter && isClosedSectionBlock(block)
+					? pipe(block, getData('nodeId'), (a) => Number(a))
+					: e.key === keyBinding.enter && isOpenedSectionBlock(block)
+						? pipe(
+								block,
+								getData('nodeId'),
+								(a) => Number(a),
+								(a) => findNodeById(a)(graph),
+								O.map((a) =>
+									!isSectionEntity(a)
+										? currentSectionId
+										: a.path.includes('.')
+											? pipe(a.path.substring(0, a.path.lastIndexOf('.')), (path) =>
+													pipe(
+														graph.nodes,
+														RM.filter((a) => isSectionEntity(a) && a.path === path),
+														RM.keys(N.Ord),
+														(a) => a[0] ?? 0
+													)
+												)
+											: 0
+								),
+								O.getOrElse(() => currentSectionId)
+							)
+						: currentSectionId
+			),
+			O.getOrElse(() => currentSectionId)
+		);
+
 		currentWorkspacePosition =
-			workspaceHasFocus && e.key === keyBinding.up
-				? moveUp(workspaceTable)(currentWorkspacePosition)
-				: workspaceHasFocus && e.key === keyBinding.down
-					? moveDown(workspaceTable)(currentWorkspacePosition)
-					: workspaceHasFocus && e.key === keyBinding.left
-						? moveLeft(workspaceTable)(currentWorkspacePosition)
-						: workspaceHasFocus && e.key === keyBinding.right
-							? moveRight(workspaceTable)(currentWorkspacePosition)
-							: currentWorkspacePosition;
+			previousSectionId !== currentSectionId
+				? defaultCellPosition
+				: workspaceHasFocus && e.key === keyBinding.up
+					? moveUp(workspaceTable)(currentWorkspacePosition)
+					: workspaceHasFocus && e.key === keyBinding.down
+						? moveDown(workspaceTable)(currentWorkspacePosition)
+						: workspaceHasFocus && e.key === keyBinding.left
+							? moveLeft(workspaceTable)(currentWorkspacePosition)
+							: workspaceHasFocus && e.key === keyBinding.right
+								? moveRight(workspaceTable)(currentWorkspacePosition)
+								: currentWorkspacePosition;
 
 		currentToolboxPosition =
 			toolboxHasFocus && e.key === keyBinding.up
@@ -115,8 +199,38 @@
 		}
 
 		if (workspaceHasFocus && e.key === keyBinding.enter) {
+			const isPlaceholder = pipe(
+				currentWorkspacePosition,
+				findElement(workspaceTable),
+				O.map(resolveBlock),
+				O.exists(isPlaceholderBlock)
+			);
+
+			currentWorkspacePosition =
+				isPlaceholder || previousSectionId !== currentSectionId
+					? currentWorkspacePosition
+					: moveDown(workspaceTable)(currentWorkspacePosition);
+
 			updateWorkspace();
+
+			currentWorkspacePosition =
+				previousSectionId !== currentSectionId
+					? pipe(
+							workspaceTable,
+							RA.findIndex((row) =>
+								pipe(
+									row,
+									RA.head,
+									O.exists((a) => getData('nodeId')(a) === `${previousSectionId}`)
+								)
+							),
+							O.getOrElse(() => 0),
+							(a) => ({ rowNumber: a, columnNumber: 0 })
+						)
+					: currentWorkspacePosition;
 		}
+
+		updateWorkspaceHighlight();
 	};
 
 	const getTargetElement = (label: Element): Element =>
@@ -188,20 +302,9 @@
 	const updateWorkspace = () => {
 		Array.from(workspace.children).forEach((a) => a.remove());
 
-		const isPlaceholder = pipe(
-			currentWorkspacePosition,
-			findElement(workspaceTable),
-			O.map(resolveBlock),
-			O.exists(isPlaceholderBlock)
-		);
-
-		workspaceSvg = generateWorkspace(graph);
+		workspaceSvg = generateWorkspace(graph)(currentSectionId);
 		workspace.append(workspaceSvg);
 		workspaceTable = generateWorkspaceTable(workspaceSvg);
-
-		currentWorkspacePosition = isPlaceholder
-			? currentWorkspacePosition
-			: moveDown(workspaceTable)(currentWorkspacePosition);
 
 		updateWorkspaceHighlight();
 		updateToolbox();

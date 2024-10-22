@@ -8,19 +8,27 @@ import {
   isSymbolEntity,
   isNumericEntity,
   isStringEntity,
-  isBlankEntity
+  isBlankEntity,
+  isSectionEntity,
+  getNextActionNodes,
 } from '$lib/code/code-graph';
 import { SymbolRelation } from '$lib/resource/graph/symbol-relation';
 import {
   getCategoryByEntity,
   getCategoryByRelation,
+  isTriggerAction,
   SymbolCategory
 } from '$lib/resource/graph/symbol-category';
 import { getSyntax, isLabelText, unpackRelation } from '$lib/resource/syntax-def';
 import { config } from '$lib/resource/config';
-import { drawLabel, drawPlaceholderBlock, getSize, drawBlock, setData } from './block';
+import {
+  drawLabel,
+  drawPlaceholderBlock,
+  getSize,
+  drawBlock,
+  setData,
+} from './block';
 import { getPlaceholder } from '$lib/resource/placeholder-def';
-import { SymbolEntity } from '$lib/resource/graph/symbol-entity';
 
 const isValueRelation = (relation: SymbolRelation) =>
   relation === SymbolRelation.NumericValue || relation === SymbolRelation.StringValue;
@@ -43,16 +51,6 @@ const generateValueLabel = (graph: CodeGraph) => (nodeId: number) => (relation: 
     drawLabel
   );
 
-const getNextActionNodes =
-  (graph: CodeGraph) =>
-    (nodeId: number): ReadonlyArray<number> =>
-      pipe(
-        graph,
-        resolveNodeByLink(nodeId)(SymbolRelation.NextAction as SymbolRelation),
-        O.map((a) => pipe(RA.fromArray([nodeId]), RA.concat(getNextActionNodes(graph)(a)))),
-        O.getOrElse(() => RA.fromArray([nodeId]))
-      );
-
 const generateBlocksByRelation =
   (graph: CodeGraph) => (nodeId: number) => (relation: SymbolRelation) =>
     pipe(
@@ -69,15 +67,36 @@ const generateBlocksByRelation =
                 setData('nodeId')(childNodeId.toString()),
                 RA.of
               )
-              : pipe(getNextActionNodes(graph)(childNodeId), RA.map(generateBlock(graph)))
+              : pipe(childNodeId, getNextActionNodes(graph), RA.map(generateBlock(graph)))
           ),
           O.getOrElse(() => RA.of(document.createElementNS('http://www.w3.org/2000/svg', 'g')))
         )
     );
 
+const generateSectionBlock = (graph: CodeGraph) => (nodeId: number) => {
+  const text = pipe(
+    graph,
+    findNodeById(nodeId),
+    O.map((a) => (isSectionEntity(a) ? `➕ ${a.path}. ${a.description}` : '')),
+    O.getOrElse(() => '')
+  );
+
+  const label = drawLabel(text);
+
+  const block = drawBlock(SymbolCategory.Action)([label]);
+  block.classList.add('closed-section-block');
+  block.dataset.nodeId = nodeId.toString();
+
+  return block;
+};
+
 const generateBlock =
   (graph: CodeGraph) =>
     (nodeId: number): SVGGElement => {
+      if (pipe(graph, findNodeById(nodeId), O.exists(isSectionEntity))) {
+        return generateSectionBlock(graph)(nodeId);
+      }
+
       const entity = pipe(graph, findNodeById(nodeId), O.filter(isSymbolEntity));
 
       if (O.isNone(entity)) {
@@ -88,9 +107,7 @@ const generateBlock =
         entity.value,
         getSyntax(config.locale),
         RNEA.map((a) =>
-          isLabelText(a)
-            ? [drawLabel(a)]
-            : pipe(generateBlocksByRelation(graph)(nodeId)(unpackRelation(a)))
+          isLabelText(a) ? [drawLabel(a)] : generateBlocksByRelation(graph)(nodeId)(unpackRelation(a))
         ),
         RA.flatten
       );
@@ -106,18 +123,15 @@ const generateBlock =
       );
     };
 
-export const generateWorkspace = (graph: CodeGraph) => {
-  const triggerBlocks = pipe(
-    graph,
-    filterNodes((a) => isSymbolEntity(a) && a === SymbolEntity.ProgramStart),
-    RA.head,
-    O.map(getNextActionNodes(graph)),
-    O.map(RA.map(generateBlock(graph))),
-    O.getOrElse(() => [] as ReadonlyArray<SVGGElement>)
-  );
-
+const generateTriggerActions = (graph: CodeGraph) => {
   const workspace = document.createElementNS('http://www.w3.org/2000/svg', 'g');
   workspace.classList.add('workspace');
+
+  const triggerBlocks = pipe(
+    graph,
+    filterNodes((a) => isSymbolEntity(a) && isTriggerAction(a)),
+    RA.map(generateBlock(graph))
+  );
 
   let offsetY = 20;
 
@@ -129,3 +143,41 @@ export const generateWorkspace = (graph: CodeGraph) => {
 
   return workspace;
 };
+
+const generateSection = (graph: CodeGraph) => (currentSectionId: number) => {
+  const workspace = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+  workspace.classList.add('workspace');
+
+  const sectionLabel = pipe(
+    graph,
+    findNodeById(currentSectionId),
+    O.map((a) => (isSectionEntity(a) ? `➖  ${a.path}. ${a.description}` : '')),
+    O.getOrElse(() => '')
+  );
+
+  const sectionBlock = pipe(
+    graph,
+    resolveNodeByLink(currentSectionId)(SymbolRelation.Action as SymbolRelation),
+    O.map(getNextActionNodes(graph)),
+    O.getOrElse(() => [] as ReadonlyArray<number>),
+    RA.map(generateBlock(graph)),
+    (a) =>
+      pipe(
+        drawLabel(sectionLabel),
+        RNEA.of,
+        RNEA.concat(a),
+        RA.append(drawLabel('↩//End of the section'))
+      ),
+    drawBlock(SymbolCategory.TriggerAction)
+  );
+
+  sectionBlock.setAttribute('transform', 'translate(20 20)');
+  sectionBlock.classList.add('opened-section-block');
+  sectionBlock.dataset.nodeId = currentSectionId.toString();
+  workspace.append(sectionBlock);
+
+  return workspace;
+};
+
+export const generateWorkspace = (graph: CodeGraph) => (currentSectionId: number) =>
+  currentSectionId === 0 ? generateTriggerActions(graph) : generateSection(graph)(currentSectionId);

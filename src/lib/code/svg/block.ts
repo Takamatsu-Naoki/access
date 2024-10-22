@@ -478,6 +478,15 @@ export const isLabel = (element: Element) => element.classList.contains('label')
 
 export const isBlock = (element: Element) => element.classList.contains('block');
 
+export const isClosedSectionBlock = (element: Element) =>
+  element.classList.contains('closed-section-block');
+
+export const isOpenedSectionBlock = (element: Element) =>
+  element.classList.contains('opened-section-block');
+
+export const isSectionBlock = (element: Element) =>
+  isClosedSectionBlock(element) || isOpenedSectionBlock(element);
+
 export const isTriggerActionBlock = (element: Element) =>
   element.classList.contains('trigger-action-block');
 
