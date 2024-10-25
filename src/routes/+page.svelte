@@ -10,7 +10,8 @@
 		type CodeGraph,
 		type CodeEntity,
 		attachBlock,
-		isSectionEntity
+		isSectionEntity,
+		BlankEntity
 	} from '$lib/code/data/code-graph';
 	import { generateWorkspace } from '$lib/code/svg/workspace';
 	import { SymbolRelation } from '$lib/resource/graph/symbol-relation';
@@ -24,7 +25,7 @@
 		moveRight,
 		type ElementTable
 	} from '$lib/code/data/label-table';
-	import { findElement, type CellPosition } from '$lib/code/fp-ts-utils/table';
+	import { findElement, findRow, type CellPosition } from '$lib/code/fp-ts-utils/table';
 	import {
 		getOffset,
 		drawArrow,
@@ -36,6 +37,7 @@
 		resolveBlock,
 		isClosedSectionBlock,
 		isOpenedSectionBlock,
+		isLabel
 	} from '$lib/code/svg/block';
 	import { config, getKeyBinding } from '$lib/resource/config';
 	import { findNodeById } from '$lib/code/fp-ts-utils/graph';
@@ -46,29 +48,28 @@
 
 	let toolbox: SVGSVGElement;
 	let workspace: SVGSVGElement;
+	let hiddenDiv: HTMLDivElement;
 
 	let workspaceHasFocus = true;
 	let toolboxHasFocus = !workspaceHasFocus;
 
 	let graph: CodeGraph = {
-		nextNodeId: 6,
+		nextNodeId: 7,
 		nodes: new Map<number, CodeEntity>([
 			[0, SymbolEntity.ProgramStart],
-			[1, { type: 'section', path: '1', description: 'Set up variables to store different sums.' }],
 			[
-				2,
-				{ type: 'section', path: '1.1', description: 'Print the results to see the final sums.' }
-			],
-			[3, SymbolEntity.StopSound],
-			[
-				4,
+				1,
 				{
 					type: 'section',
-					path: '2',
-					description: 'Go through numbers from 0 to 99 and update sums based on conditions.'
+					path: '1',
+					description: 'Set up Variables to store the sums of specific numbers, initialized to 0.'
 				}
 			],
-			[5, SymbolEntity.StopSound]
+			[2, { type: 'section', path: '2', description: 'Loop through numbers from 1 to 10.' }],
+			[3, { type: 'section', path: '3', description: 'Output the results to the console.' }],
+			[4, BlankEntity],
+			[5, BlankEntity],
+			[6, BlankEntity]
 		]),
 		links: [
 			{
@@ -78,23 +79,28 @@
 			},
 			{
 				subjectNodeId: 1,
-				relation: SymbolRelation.Action,
+				relation: SymbolRelation.NextAction,
 				objectNodeId: 2
 			},
 			{
 				subjectNodeId: 2,
-				relation: SymbolRelation.Action,
+				relation: SymbolRelation.NextAction,
 				objectNodeId: 3
 			},
 			{
 				subjectNodeId: 1,
-				relation: SymbolRelation.NextAction,
+				relation: SymbolRelation.Action,
 				objectNodeId: 4
 			},
 			{
-				subjectNodeId: 4,
+				subjectNodeId: 2,
 				relation: SymbolRelation.Action,
 				objectNodeId: 5
+			},
+			{
+				subjectNodeId: 3,
+				relation: SymbolRelation.Action,
+				objectNodeId: 6
 			}
 		]
 	};
@@ -158,6 +164,8 @@
 			),
 			O.getOrElse(() => currentSectionId)
 		);
+
+		const previousWorkspacePosition = currentWorkspacePosition;
 
 		currentWorkspacePosition =
 			previousSectionId !== currentSectionId
@@ -230,6 +238,11 @@
 		}
 
 		updateWorkspaceHighlight();
+
+		if (previousWorkspacePosition !== currentWorkspacePosition) {
+			const text = generateQuote();
+			//readWithApi(text);
+		}
 	};
 
 	const getTargetElement = (label: Element): Element =>
@@ -309,9 +322,64 @@
 		updateToolbox();
 	};
 
+	const readWithApi = async (quote: string) => {
+		if (speechSynthesis.speaking) {
+			speechSynthesis.cancel();
+		}
+
+		const utterance = new SpeechSynthesisUtterance(quote);
+		speechSynthesis.speak(utterance);
+	};
+
+	const generateQuote = () =>
+		pipe(
+			currentWorkspacePosition.rowNumber,
+			findRow(workspaceTable),
+			O.map((a) =>
+				currentWorkspacePosition.columnNumber === 0
+					? pipe(
+							a,
+							RA.filter(isLabel),
+							RA.map((a) =>
+								getData('description')(a) !== '' ? getData('description')(a) : (a.textContent ?? '')
+							),
+							RA.reduce('', (acc, cur) => acc + cur)
+						)
+					: pipe(
+							a,
+							RA.lookup(currentWorkspacePosition.columnNumber),
+							O.map((a) =>
+								getData('description')(a) !== '' ? getData('description')(a) : (a.textContent ?? '')
+							),
+							O.getOrElse(() => '')
+						)
+			),
+			O.getOrElse(() => '')
+		);
+
+	const readWithScreenReader = async (text: string) => {
+		const id = Math.random().toString(32).substring(2);
+		hiddenDiv.insertAdjacentHTML(
+			'beforeend',
+			`<div class="hiddenLabel" id="${id}" aria-live="polite" aria-atomic="true"></div>`
+		);
+
+		const hiddenLabel = document.getElementById(id) as HTMLElement;
+		setTimeout(() => {
+			hiddenLabel.textContent = text;
+		}, 10);
+		setTimeout(() => {
+			hiddenLabel.remove();
+		}, 1000);
+	};
+
 	onMount(() => {
 		updateWorkspace();
 		updateToolbox();
+		setTimeout(() => {
+			const text = generateQuote();
+			readWithApi(text);
+		}, 1000);
 	});
 </script>
 
@@ -335,6 +403,11 @@
 
 		body::-webkit-scrollbar {
 			display: none;
+		}
+
+		.hiddenLabel {
+			position: absolute;
+			right: 0;
 		}
 
 		.block-path {
@@ -374,7 +447,7 @@
 	</style>
 </svelte:head>
 
-<div id="hidden-div">
+<div id="hidden-div" bind:this={hiddenDiv}>
 	<svg id="hidden-SVG" />
 </div>
 <header id="menu-bar">
@@ -383,10 +456,10 @@
 	</p>
 </header>
 <div id="body-wrapper">
-	<div id="toolbox-wrapper" class:focusedArea={toolboxHasFocus}>
+	<div id="toolbox-wrapper" aria-hidden="true" class:focusedArea={toolboxHasFocus}>
 		<svg id="toolbox" viewBox="0 0 805 1820" bind:this={toolbox} />
 	</div>
-	<div id="workspace-wrapper" class:focusedArea={workspaceHasFocus}>
+	<div id="workspace-wrapper" aria-hidden="true" class:focusedArea={workspaceHasFocus}>
 		<svg id="workspace" viewBox="0 0 1070 1400" bind:this={workspace} />
 	</div>
 </div>

@@ -7,6 +7,11 @@ export type Table<E> = RNEA.ReadonlyNonEmptyArray<ReadonlyArray<E>>;
 
 export type CellPosition = Readonly<{ rowNumber: number; columnNumber: number }>;
 
+export const findRow =
+  <E>(table: Table<E>) =>
+    (rowNumber: number) =>
+      pipe(table, RA.lookup(rowNumber))
+
 export const findElement =
   <E>(table: Table<E>) =>
     (position: CellPosition) =>

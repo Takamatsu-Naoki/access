@@ -18,8 +18,8 @@ export const getSize = (element: SVGGraphicsElement) => {
 export const getOffset = (element: Element) => {
   const transform = element?.getAttribute('transform') ?? '';
   return {
-    x: Number((transform.match(/(?<=\().+(?=\s)/) ?? [0])[0]),
-    y: Number((transform.match(/(?<=\s).+(?=\))/) ?? [0])[0])
+    x: Number((transform.match(/(?<=\().+(?=\s)/) ?? [''])[0]),
+    y: Number((transform.match(/(?<=\s).+(?=\))/) ?? [''])[0])
   };
 };
 
@@ -31,7 +31,7 @@ const drawText = (content: string) => {
   text.setAttribute('y', '4px');
   text.setAttribute('font-size', '20px');
   text.setAttributeNS('http://www.w3.org/XML/1998/namespace', 'xml:space', 'preserve');
-  text.textContent = content;
+  text.textContent = (content.match(/^.+(?=\/\/)|^.+$/) ?? [''])[0];
 
   return text;
 };
@@ -67,6 +67,7 @@ export const drawLabel = (content: string) => {
 
   const label = document.createElementNS('http://www.w3.org/2000/svg', 'g');
   label.classList.add('label');
+  label.dataset.description = (content.match(/(?<=\/\/).+$/) ?? [''])[0];
   label.append(labelPath);
   label.append(text);
 
