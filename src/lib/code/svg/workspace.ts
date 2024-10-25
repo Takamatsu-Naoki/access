@@ -10,7 +10,7 @@ import {
   isStringEntity,
   isBlankEntity,
   isSectionEntity,
-  getNextActionNodes,
+  getNextActionNodes
 } from '$lib/code/data/code-graph';
 import { SymbolRelation } from '$lib/resource/graph/symbol-relation';
 import {
@@ -21,13 +21,7 @@ import {
 } from '$lib/resource/graph/symbol-category';
 import { getSyntax, isLabelText, unpackRelation } from '$lib/resource/syntax-def';
 import { config } from '$lib/resource/config';
-import {
-  drawLabel,
-  drawPlaceholderBlock,
-  getSize,
-  drawBlock,
-  setData,
-} from './block';
+import { drawLabel, drawPlaceholderBlock, getSize, drawBlock, setData } from './block';
 import { getPlaceholder } from '$lib/resource/placeholder-def';
 
 const isValueRelation = (relation: SymbolRelation) =>
@@ -160,13 +154,26 @@ const generateSection = (graph: CodeGraph) => (currentSectionId: number) => {
     resolveNodeByLink(currentSectionId)(SymbolRelation.Action as SymbolRelation),
     O.map(getNextActionNodes(graph)),
     O.getOrElse(() => [] as ReadonlyArray<number>),
-    RA.map(generateBlock(graph)),
+    RA.map((a) =>
+      pipe(
+        graph,
+        findNodeById(a),
+        O.map(isBlankEntity),
+        O.getOrElse(() => true)
+      )
+        ? pipe(
+          getPlaceholder(config.locale)(SymbolRelation.Action),
+          drawPlaceholderBlock(SymbolCategory.Action),
+          setData('nodeId')(`${a}`)
+        )
+        : generateBlock(graph)(a)
+    ),
     (a) =>
       pipe(
         drawLabel(sectionLabel),
         RNEA.of,
         RNEA.concat(a),
-        RA.append(drawLabel('↩//End of the section'))
+        RA.append(drawLabel('↩//End of the Section'))
       ),
     drawBlock(SymbolCategory.TriggerAction)
   );
