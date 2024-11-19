@@ -18,8 +18,8 @@ export type Graph<E, R> = Readonly<{
 }>;
 
 export const findNodeById =
-  (nodeId: number) =>
-    <E, R>(graph: Graph<E, R>) =>
+  <E, R>(graph: Graph<E, R>) =>
+    (nodeId: number) =>
       pipe(
         graph.nodes,
         RM.lookupWithKey(N.Eq)(nodeId),
@@ -27,8 +27,8 @@ export const findNodeById =
       );
 
 export const findSubjectNode =
-  (objectNodeId: number) =>
-    <E, R>(graph: Graph<E, R>) =>
+  <E, R>(graph: Graph<E, R>) =>
+    (objectNodeId: number) =>
       pipe(
         graph.links,
         RA.filter((a) => a.objectNodeId === objectNodeId),
@@ -37,9 +37,9 @@ export const findSubjectNode =
       );
 
 export const resolveNodeByLink =
-  (nodeId: number) =>
-    <R>(relation: R) =>
-      <E>(graph: Graph<E, R>) =>
+  <E, R>(graph: Graph<E, R>) =>
+    (nodeId: number) =>
+      (relation: R) =>
         pipe(
           graph.links,
           RA.filter((a) => a.subjectNodeId === nodeId && a.relation === relation),
@@ -48,9 +48,9 @@ export const resolveNodeByLink =
         );
 
 export const findRelation =
-  (subjectNodeId: number) =>
-    (objectNodeId: number) =>
-      <E, R>(graph: Graph<E, R>) =>
+  <E, R>(graph: Graph<E, R>) =>
+    (subjectNodeId: number) =>
+      (objectNodeId: number) =>
         pipe(
           graph.links,
           RA.filter((a) => a.subjectNodeId === subjectNodeId && a.objectNodeId === objectNodeId),
@@ -59,40 +59,40 @@ export const findRelation =
         );
 
 export const filterNodes =
-  <E>(predicate: Predicate<E>) =>
-    <R>(graph: Graph<E, R>) =>
+  <E, R>(graph: Graph<E, R>) =>
+    (predicate: Predicate<E>) =>
       pipe(graph.nodes, RM.filter<E>(predicate), RM.keys(N.Ord));
 
 export const addNode =
-  <E>(entity: E) =>
-    <R>(graph: Graph<E, R>) => ({
+  <E, R>(graph: Graph<E, R>) =>
+    (entity: E) => ({
       ...graph,
       nextNodeId: graph.nextNodeId + 1,
       nodes: pipe(graph.nodes, RM.upsertAt(N.Eq)(graph.nextNodeId, entity))
     });
 
 export const addNodeWithRelation =
-  (subjectNodeId: number) =>
-    <R>(relation: R) =>
-      <E>(entity: E) =>
-        (graph: Graph<E, R>) => ({
+  <E, R>(graph: Graph<E, R>) =>
+    (subjectNodeId: number) =>
+      (relation: R) =>
+        (entity: E) => ({
           nextNodeId: graph.nextNodeId + 1,
           nodes: pipe(graph.nodes, RM.upsertAt(N.Eq)(graph.nextNodeId, entity)),
           links: pipe(graph.links, RA.append({ subjectNodeId, relation, objectNodeId: graph.nextNodeId }))
         });
 
 export const replaceNode =
-  (nodeId: number) =>
-    <E>(entity: E) =>
-      <R>(graph: Graph<E, R>) => ({
+  <E, R>(graph: Graph<E, R>) =>
+    (nodeId: number) =>
+      (entity: E) => ({
         ...graph,
         nextNodeId: graph.nextNodeId + 1,
         nodes: pipe(graph.nodes, RM.upsertAt(N.Eq)(nodeId, entity))
       });
 
 export const removeNode =
-  (nodeId: number) =>
-    <E, R>(graph: Graph<E, R>) => ({
+  <E, R>(graph: Graph<E, R>) =>
+    (nodeId: number) => ({
       ...graph,
       nodes: pipe(graph.nodes, RM.deleteAt(N.Eq)(nodeId)),
       links: pipe(
@@ -102,16 +102,16 @@ export const removeNode =
     });
 
 export const addLink =
-  <R>(link: Link<R>) =>
-    <E>(graph: Graph<E, R>) => ({
+  <E, R>(graph: Graph<E, R>) =>
+    (link: Link<R>) => ({
       ...graph,
       links: pipe(graph.links, RA.append(link))
     });
 
 export const removeLink =
-  (subjectNodeId: number) =>
-    (objectNodeId: number) =>
-      <E, R>(graph: Graph<E, R>) => ({
+  <E, R>(graph: Graph<E, R>) =>
+    (subjectNodeId: number) =>
+      (objectNodeId: number) => ({
         ...graph,
         links: pipe(
           graph.links,

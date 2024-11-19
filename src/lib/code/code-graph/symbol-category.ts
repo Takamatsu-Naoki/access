@@ -1,5 +1,5 @@
-import { SymbolEntity } from '$lib/resource/graph/symbol-entity';
-import { SymbolRelation } from './symbol-relation';
+import { SymbolEntity } from '$lib/code/code-graph/symbol-entity';
+import { SymbolRelation } from '$lib/code/code-graph/symbol-relation';
 
 export const SymbolCategory = {
   TriggerAction: 'triggerAction',

@@ -27,3 +27,8 @@ export const appendElement =
 
 export const appendEmptyRow = <E>(table: Table<E>) =>
   pipe(table, RA.append([] as ReadonlyArray<E>));
+
+export const appendRow =
+  <E>(table: RNEA.ReadonlyNonEmptyArray<ReadonlyArray<E>>) =>
+    (element: E) =>
+      pipe(table, RA.append([element] as ReadonlyArray<E>));

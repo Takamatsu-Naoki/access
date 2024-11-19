@@ -7,34 +7,33 @@ import {
   type Table,
   appendElement,
   appendEmptyRow
-} from '$lib/code/fp-ts-utils/table';
-import { resolveActionBlock, isActionBlock, isLabel, isTriggerActionBlock } from '../svg/block';
+} from '$lib/code/utils/table';
+import { resolveActionBlock, isActionBlock, isTriggerActionBlock } from '$lib/code/svg-generation/block';
 
 export type ElementTable = Table<Element>;
 
 export const traverseElements = (table: ElementTable) => (element: Element) => {
-  const childElements = Array.from(element.children);
+  const children = Array.from(element.children);
 
-  childElements.forEach((childElement) => {
-    table = childElement.classList.contains('label')
-      ? appendElement(table)(childElement)
-      : isActionBlock(childElement)
+  children.forEach((child) => {
+    table = child.classList.contains('label')
+      ? appendElement(table)(child)
+      : isActionBlock(child)
         ? appendEmptyRow(table)
         : table;
-    table = traverseElements(table)(childElement);
+    table = traverseElements(table)(child);
   });
 
   return isTriggerActionBlock(element) || isActionBlock(element) ? appendEmptyRow(table) : table;
-};
+}
 
 export const generateWorkspaceTable = (workspace: Element) =>
   pipe(
-    workspace,
-    traverseElements([[]]),
+    traverseElements([[]])(workspace),
     RA.filter(RA.isNonEmpty),
     RA.map((a) => pipe(a, RA.prepend(resolveActionBlock(RNEA.head(a))))),
     RNEA.fromReadonlyArray,
-    O.getOrElse(() => [[]] as ElementTable)
+    O.getOrElse(() => [[]] as ElementTable),
   );
 
 export const generateToolboxTable = (toolbox: Element) =>

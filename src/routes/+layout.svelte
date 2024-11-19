@@ -1,6 +1,6 @@
 <script>
 	import './styles.css';
-	import icon from '$lib/resource/images/icon.png';
+	import icon from '$lib/resource/image/icon.png';
 </script>
 
 <svelte:head>

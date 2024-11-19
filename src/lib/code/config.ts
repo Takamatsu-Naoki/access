@@ -1,24 +1,9 @@
-export type Config = Readonly<{
-  voiceInput: boolean;
-  locale: Locale;
-  keyBindingMode: KeyBindingMode;
-}>;
-
 export const Locale = {
   JaJP: 'ja_JP',
-  EnUS: 'en_US'
+  EnUS: 'en_US',
 } as const;
 
 export type Locale = (typeof Locale)[keyof typeof Locale];
-
-export const KeyBindingMode = {
-  Arrow: 'arrow',
-  Wasd: 'wasd',
-  Hjkl: 'hjkl',
-  NumericKeypad: 'numericKeypad'
-} as const;
-
-export type KeyBindingMode = (typeof KeyBindingMode)[keyof typeof KeyBindingMode];
 
 type KeyBinding = {
   up: string;
@@ -30,11 +15,11 @@ type KeyBinding = {
 };
 
 type KeyBindingDef = {
-  [key in KeyBindingMode]: KeyBinding;
+  [key: string]: KeyBinding;
 };
 
 const keyBindingDef: KeyBindingDef = {
-  [KeyBindingMode.Arrow]: {
+  arrow: {
     up: 'ArrowUp',
     down: 'ArrowDown',
     left: 'ArrowLeft',
@@ -42,7 +27,7 @@ const keyBindingDef: KeyBindingDef = {
     enter: 'f',
     back: 'd'
   },
-  [KeyBindingMode.Wasd]: {
+  wasd: {
     up: 'w',
     down: 'a',
     left: 's',
@@ -50,7 +35,7 @@ const keyBindingDef: KeyBindingDef = {
     enter: 'j',
     back: 'k'
   },
-  [KeyBindingMode.Hjkl]: {
+  hjkl: {
     up: 'k',
     down: 'j',
     left: 'h',
@@ -58,7 +43,7 @@ const keyBindingDef: KeyBindingDef = {
     enter: 'f',
     back: 'd'
   },
-  [KeyBindingMode.NumericKeypad]: {
+  numericKeypad: {
     up: '8',
     down: '2',
     left: '4',
@@ -68,10 +53,14 @@ const keyBindingDef: KeyBindingDef = {
   }
 };
 
-export const getKeyBinding = (keyBindingMode: KeyBindingMode) => keyBindingDef[keyBindingMode];
+export type Config = Readonly<{
+  voiceInput: boolean;
+  locale: Locale;
+  keyBinding: KeyBinding;
+}>;
 
 export const config: Config = {
   voiceInput: false,
   locale: Locale.EnUS,
-  keyBindingMode: KeyBindingMode.Hjkl
+  keyBinding: keyBindingDef.hjkl
 };

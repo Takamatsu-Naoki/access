@@ -5,17 +5,11 @@
 	import * as RM from 'fp-ts/ReadonlyMap';
 	import * as RA from 'fp-ts/ReadonlyArray';
 	import * as N from 'fp-ts/number';
-	import { generateToolbox } from '$lib/code/svg/toolbox';
-	import {
-		type CodeGraph,
-		type CodeEntity,
-		attachBlock,
-		isSectionEntity,
-		BlankEntity
-	} from '$lib/code/data/code-graph';
-	import { generateWorkspace } from '$lib/code/svg/workspace';
-	import { SymbolRelation } from '$lib/resource/graph/symbol-relation';
-	import { SymbolEntity } from '$lib/resource/graph/symbol-entity';
+	import { config } from '$lib/code/config';
+	import { findNodeById } from '$lib/code/utils/graph';
+	import { SymbolRelation } from '$lib/code/code-graph/symbol-relation';
+	import { SymbolEntity } from '$lib/code/code-graph/symbol-entity';
+	import { findElement, findRow, type CellPosition } from '$lib/code/utils/table';
 	import {
 		generateToolboxTable,
 		generateWorkspaceTable,
@@ -24,8 +18,7 @@
 		moveLeft,
 		moveRight,
 		type ElementTable
-	} from '$lib/code/data/label-table';
-	import { findElement, findRow, type CellPosition } from '$lib/code/fp-ts-utils/table';
+	} from '$lib/code/label-table/label-table';
 	import {
 		getOffset,
 		drawArrow,
@@ -38,11 +31,18 @@
 		isClosedSectionBlock,
 		isOpenedSectionBlock,
 		isLabel
-	} from '$lib/code/svg/block';
-	import { config, getKeyBinding } from '$lib/resource/config';
-	import { findNodeById } from '$lib/code/fp-ts-utils/graph';
+	} from '$lib/code/svg-generation/block';
+	import { generateToolbox } from '$lib/code/svg-generation/toolbox';
+	import {
+		type CodeGraph,
+		type CodeEntity,
+		attachBlock,
+		isSectionEntity,
+		BlankEntity
+	} from '$lib/code/code-graph/code-graph';
+	import { generateWorkspace } from '$lib/code/svg-generation/workspace';
 
-	const keyBinding = getKeyBinding(config.keyBindingMode);
+	const keyBinding = config.keyBinding;
 
 	const defaultCellPosition: CellPosition = { rowNumber: 0, columnNumber: 0 };
 
@@ -124,7 +124,7 @@
 						findElement(toolboxTable),
 						O.map(getData('symbolEntity')),
 						O.map((a) =>
-							pipe(graph, attachBlock(workspaceTable)(currentWorkspacePosition)(a as SymbolEntity))
+							attachBlock(graph)(workspaceTable)(currentWorkspacePosition)(a as SymbolEntity)
 						),
 						O.getOrElse(() => graph)
 					)
@@ -143,7 +143,7 @@
 								block,
 								getData('nodeId'),
 								(a) => Number(a),
-								(a) => findNodeById(a)(graph),
+								findNodeById(graph),
 								O.map((a) =>
 									!isSectionEntity(a)
 										? currentSectionId
